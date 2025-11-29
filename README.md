@@ -62,18 +62,14 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
   ```bash
   docker-compose up --build
   ```
-2. **Set Rails Master Key**
-  - Make sure you have a `config/master.key` file. Set the environment variable `RAILS_MASTER_KEY` to its contents, or create a `.env` file with:
-    ```
-    RAILS_MASTER_KEY=your_master_key_here
-    ```
-3. **Provision the Database (inside the container)**
+
+2. **Provision the Database (inside the container)**
   ```bash
   docker-compose exec app bin/rails db:setup
   ```
   This will create, migrate, and seed the database.
 
-4. **Generate an API Token (inside the container)**
+3. **Generate an API Token (inside the container)**
   ```bash
   docker-compose exec app bin/rails api_tokens:generate[my-ci-token]
   ```
