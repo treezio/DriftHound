@@ -81,6 +81,35 @@ bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
   --dir=PATH_TO_INFRA_DIR
 ```
 
+### Run the CLI via Docker
+
+You can also run the CLI directly from the published Docker image, without installing Ruby or dependencies locally:
+
+```sh
+docker run --rm \
+  -v "$(pwd)":/infra \
+  -w /infra \
+  ghcr.io/treezio/drifthound:<tag> \
+  bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
+    --project=PROJECT_KEY \
+    --environment=ENV_KEY \
+    --token=API_TOKEN \
+    --api-url=http://your-drifthound-server \
+    --dir=.
+```
+
+Replace `<tag>` with the desired image version (e.g., `v0.1.0` or `latest`).
+
+This mounts your current directory into the container and runs the CLI as if it were installed locally.
+
+#### Example
+
+```sh
+docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
+  bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
+  --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
+```
+
 #### Example
 
 ```sh
