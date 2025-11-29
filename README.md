@@ -4,7 +4,8 @@
   <h1>DriftHound</h1>
   <em>A Watchdog for Your Infrastructure State.</em>
   <div style="margin-top: 24px;"></div>
-<img src="./docs/media/drifthound.png" alt="logo" width="500" />
+<img src="./docs/media/drifthound.png" alt="logo" width="300" />
+
   <br />
   <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version" />
   <img src="https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" />
