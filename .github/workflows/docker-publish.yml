@@ -1,6 +1,3 @@
-# This workflow builds and pushes a Docker image to GitHub Container Registry (ghcr.io)
-# whenever a new release is published.
-
 name: Publish Docker image to GHCR
 
 on:
@@ -30,13 +27,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract release tag
-        id: extract_tag
-        run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      # - name: Extract release tag
+      #   id: extract_tag
+      #   run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ env.RELEASE_TAG }}
+          tags: ghcr.io/${{ github.repository }}:v0.1.0
