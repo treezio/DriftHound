@@ -4,7 +4,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "shows dashboard" do
     get root_path
     assert_response :success
-    assert_select "h1", "🐕 DriftHound"
+    assert_select "h1", "DriftHound"
   end
 
   test "shows empty state when no projects exist" do
