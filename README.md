@@ -1,7 +1,8 @@
-# DriftHound
 
+# DriftHound
 ![logo](./docs/media/drifthound.png)
 
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![CI](https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Ruby](https://img.shields.io/badge/ruby-3.4.6-red)
 
