@@ -3,17 +3,22 @@
 <div align="center">
   <h1>DriftHound</h1>
   <em>A Watchdog for Your Infrastructure State.</em>
-  <div style="margin-top: 24px;"></div>
-<img src="./docs/media/drifthound.png" alt="logo" width="300" />
-
-  <br />
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="Version" />
-  <img src="https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" />
-  <img src="https://img.shields.io/badge/ruby-3.4.6-red" alt="Ruby" />
 </div>
-<div style="margin-top: 24px;"></div>
+<br>
+<div align="center">
+<img src="./docs/media/drifthound.png" alt="logo" width="300" />
+</div>
+<br>
+<p align="center">
+  <a href="https://github.com/treezio/DriftHound/actions/workflows/ci.yml">
+    <img src="https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main" alt="Build Status">
+  </a>
+  <a href="https://github.com/treezio/DriftHound/blob/main/.ruby-version">
+    <img src="https://img.shields.io/badge/ruby-3.4.6-red" alt="Ruby">
+  </a>
+</p>
 
-## About
+## What is DriftHound?
 DriftHound is a Rails WebApp that receives Terraform drift reports via API and provides visibility into infrastructure drift across your projects.
 
 ## Features
