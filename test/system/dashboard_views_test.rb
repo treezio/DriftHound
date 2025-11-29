@@ -24,6 +24,7 @@ class DashboardViewsTest < ApplicationSystemTestCase
     visit project_environment_path(@project.key, @env.key)
     assert_selector ".check-row"
     assert_selector ".status-text--drift", text: "DRIFT"
+    find(".expand-btn").click
     assert_selector ".check-output code", text: "Plan: 2 to add, 1 to change, 0 to destroy."
   end
 end

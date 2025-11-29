@@ -6,7 +6,11 @@ require "selenium/webdriver"
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   Capybara.register_driver :headless_chrome_custom do |app|
     options = Selenium::WebDriver::Chrome::Options.new
-    options.binary = "/usr/bin/chromium-browser"
+    if RUBY_PLATFORM =~ /darwin/
+      options.binary = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    else
+      options.binary = "/usr/bin/chromium-browser"
+    end
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
