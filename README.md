@@ -81,6 +81,13 @@ bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
   --dir=PATH_TO_INFRA_DIR
 ```
 
+#### Example
+
+```sh
+bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
+  --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
+```
+
 ### Run the CLI via Docker
 
 You can also run the CLI directly from the published Docker image, without installing Ruby or dependencies locally:
@@ -110,12 +117,6 @@ docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
   --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
 ```
 
-#### Example
-
-```sh
-bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
-  --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
-```
 
 #### Options
 
