@@ -1,4 +1,6 @@
-# DriftHound 🐕
+# DriftHound
+
+![logo](./docs/media/drifthound.png)
 
 ![CI](https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Ruby](https://img.shields.io/badge/ruby-3.4.6-red)
@@ -10,7 +12,6 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
 - **API for Drift Reports**: Receive Terraform drift check results via authenticated API
 - **Historical Data**: Store and track drift check history per project
 - **Project Status**: Display project status (OK / Drift / Error / Unknown)
--- **Slack Notifications**: Send alerts when drift is detected (see ToDo's)
 - **Web Dashboard**: View all projects and their drift status at a glance (coming soon)
 
 ## Requirements
@@ -19,8 +20,7 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
 - PostgreSQL
 - Rails 8.0+
 
-
-## Setup
+## Local Delevelopment
 
 ### Non-Docker Setup
 
@@ -64,7 +64,6 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
   docker-compose exec app bin/rails api_tokens:generate[my-ci-token]
   ```
   This will output a token to use in your API requests.
-
 
 ## CLI Usage
 
