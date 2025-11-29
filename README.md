@@ -96,7 +96,7 @@ This will make the `drifthound` command available globally.
 ### Usage
 
 ```sh
-bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
+drifthound --tool=terraform|terragrunt|opentofu \
   --project=PROJECT_KEY \
   --environment=ENV_KEY \
   --token=API_TOKEN \
@@ -107,7 +107,7 @@ bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
 #### Example
 
 ```sh
-bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
+drifthound --tool=terragrunt --project=shipping --environment=production \
   --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
 ```
 
