@@ -98,7 +98,7 @@ docker run --rm \
     --dir=.
 ```
 
-Replace `<tag>` with the desired image version (e.g., `v0.1.0` or `latest`).
+Replace `<tag>` with the desired image version (e.g., `v0.1.0`).
 
 This mounts your current directory into the container and runs the CLI as if it were installed locally.
 
