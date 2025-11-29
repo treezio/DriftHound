@@ -12,6 +12,8 @@
   <img src="https://img.shields.io/badge/ruby-3.4.6-red" alt="Ruby" />
 </div>
 <div style="margin-top: 24px;"></div>
+
+## About
 DriftHound is a Rails WebApp that receives Terraform drift reports via API and provides visibility into infrastructure drift across your projects.
 
 ## Features
