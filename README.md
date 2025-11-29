@@ -6,7 +6,7 @@
 </div>
 <br>
 <div align="center">
-<img src="./docs/media/drifthound.png" alt="logo" width="300" />
+<img src="./docs/media/drifthound.png" alt="logo" width="500" />
 </div>
 <br>
 <p align="center">
