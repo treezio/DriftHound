@@ -70,6 +70,16 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
 
 DriftHound provides a Ruby CLI to automate drift checks and report results to the server. This is ideal for CI pipelines.
 
+### Quick Install
+
+You can install the CLI directly without cloning the repo:
+
+```sh
+sudo curl -L https://raw.githubusercontent.com/treezio/DriftHound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
+```
+
+This will make the `drifthound` command available globally.
+
 ### Usage
 
 ```sh
