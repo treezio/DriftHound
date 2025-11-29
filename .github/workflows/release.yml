@@ -1,0 +1,17 @@
+name: Release DriftHound
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          release-type: ruby
+          package-name: DriftHound
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
