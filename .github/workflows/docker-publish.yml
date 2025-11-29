@@ -36,4 +36,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:v0.1.0
+          tags: ghcr.io/treezio/drifthound:v0.1.0
