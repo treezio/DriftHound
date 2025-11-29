@@ -76,8 +76,9 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config google-chrome-stable chromium-chromedriver
+          sudo apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config chromium-browser chromium-chromedriver
           sudo ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver
+          sudo ln -sf /usr/bin/chromium-browser /usr/bin/google-chrome
 
       - name: Checkout code
         uses: actions/checkout@v4
