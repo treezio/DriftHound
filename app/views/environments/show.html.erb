@@ -1,0 +1,100 @@
+<div class="environment-detail">
+  <header class="project-header">
+    <div class="breadcrumb">
+      <%= link_to "🐕 DriftHound", root_path %> › <%= link_to @project.name, project_path(@project.key) %> › <span><%= @environment.name %></span>
+    </div>
+    <%= link_to "← Back to #{@project.name}", project_path(@project.key), class: "back-link" %>
+  </header>
+
+  <section class="project-summary project-summary--horizontal">
+    <div class="project-main-info" style="display: flex; align-items: center; gap: 0.75em; font-size: 1.1em;">
+      <% last_status = @environment.last_check_status %>
+      <span class="status-indicator status-indicator--<%= last_status %>"></span>
+      <span style="font-weight: 600;"><%= @project.name %></span>
+      <span style="color: #bbb; font-size: 1.2em;">&bull;</span>
+      <span style="font-weight: 600;"><%= @environment.name %></span>
+      <span style="color: #bbb; font-size: 1.2em;">&bull;</span>
+      <span class="status-pill status-pill--<%= last_status %>"><%= last_status.upcase %></span>
+    </div>
+    <div class="project-meta-info">
+      <% if @environment.last_checked_at %>
+        <span class="last-check-time last-check-highlight" title="<%= @environment.last_checked_at.strftime('%Y-%m-%d %H:%M:%S') %>">
+          Last checked <%= time_ago_in_words(@environment.last_checked_at) %> ago
+        </span>
+      <% else %>
+        <span class="last-check-time last-check-highlight">Never checked</span>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="check-history">
+    <h2>Check History</h2>
+    <% if @drift_checks.empty? %>
+      <div class="empty-state">
+        <p>No drift checks recorded yet.</p>
+      </div>
+    <% else %>
+      <div class="checks-table">
+        <div class="checks-header">
+          <span style="text-align:center; padding-right:0.75em;">#</span>
+          <span style="padding-left:0.25em;">Status</span>
+          <span>Summary</span>
+          <span>Duration</span>
+          <span>Execution Time</span>
+          <span style="text-align:right;">Details</span>
+        </div>
+        <% total_checks = @drift_checks.size %>
+        <% @drift_checks.each_with_index do |check, idx| %>
+          <div class="check-row" data-controller="expandable">
+            <div class="check-summary" style="display: grid; grid-template-columns: 40px 1fr 2fr 1fr 1fr 100px; align-items: center; gap: 0.5em;" data-action="click->expandable#toggle">
+                <span class="col-check-number" style="text-align:center; font-weight:600; color:#888;">
+                  <span class="check-number-badge"><%= check.execution_number %></span>
+              </span>
+              <span class="col-status">
+                <span class="status-indicator status-indicator--<%= check.status %>"></span>
+                <span class="status-text status-text--<%= check.status %>"><%= check.status.upcase %></span>
+              </span>
+              <span class="col-summary">
+                <% if check.ok? %>
+                  No changes
+                <% elsif check.drift? || check.error? %>
+                  <% parts = [] %>
+                  <% parts << "#{check.add_count} to add" if check.add_count.to_i > 0 %>
+                  <% parts << "#{check.change_count} to change" if check.change_count.to_i > 0 %>
+                  <% parts << "#{check.destroy_count} to destroy" if check.destroy_count.to_i > 0 %>
+                  <%= parts.any? ? parts.join(", ") : "—" %>
+                <% else %>
+                  —
+                <% end %>
+              </span>
+              <span class="col-duration">
+                <% if check.duration.present? %>
+                  <%= check.duration >= 60 ? "#{check.duration / 60}m #{check.duration % 60}s" : "#{check.duration}s" %>
+                <% else %>
+                  —
+                <% end %>
+              </span>
+              <span class="col-time" title="<%= check.created_at.strftime('%Y-%m-%d %H:%M:%S') %>">
+                <%= check.created_at.strftime('%b %d, %I:%M %p') %>
+              </span>
+              <span class="col-actions">
+                <% if check.raw_output.present? %>
+                  <button class="expand-btn" data-expandable-target="button">
+                    <span class="expand-icon">▶</span> Plan
+                  </button>
+                <% else %>
+                  <span class="no-output">—</span>
+                <% end %>
+              </span>
+            </div>
+            <% if check.raw_output.present? %>
+              <div class="check-output" data-expandable-target="content" hidden>
+                <pre><code><%= check.raw_output %></code></pre>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+</div>

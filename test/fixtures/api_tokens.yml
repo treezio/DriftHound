@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Test Token One
+  token: test_token_one_unique_value
+
+two:
+  name: Test Token Two
+  token: test_token_two_unique_value

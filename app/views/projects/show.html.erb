@@ -1,0 +1,83 @@
+<div class="project-detail">
+  <header class="project-header">
+    <div class="breadcrumb">
+      <%= link_to "🐕 DriftHound", root_path %> › <span><%= @project.name %></span>
+    </div>
+    <%= link_to "← Back to Dashboard", root_path, class: "back-link" %>
+  </header>
+
+  <section class="project-summary project-summary--horizontal">
+    <div class="project-main-info">
+      <h1><%= @project.name %></h1>
+      <span class="project-key-tag"><%= @project.key %></span>
+    </div>
+    <div class="project-meta-info">
+      <% if @project.last_checked_at %>
+        <span class="last-check-time">Last checked <%= time_ago_in_words(@project.last_checked_at) %> ago</span>
+      <% else %>
+        <span class="last-check-time">Never checked</span>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="environments-list">
+    <h2>Environments</h2>
+    
+    <% if @environments.empty? %>
+      <div class="empty-state">
+        <p>No environments yet.</p>
+        <p class="hint">Environments are created automatically when you submit drift checks via the API.</p>
+      </div>
+    <% else %>
+      <div class="environments-table">
+        <div class="environments-header">
+          <span>Status</span>
+          <span>Environment</span>
+          <span>Summary</span>
+          <span></span>
+          <span>Last Check</span>
+          <span></span>
+        </div>
+        
+        <% @environments.each do |environment| %>
+          <%= link_to project_environment_path(@project.key, environment.key), class: "environment-row" do %>
+            <span class="col-status">
+              <span class="status-indicator status-indicator--<%= environment.status %>"></span>
+              <span class="status-text status-text--<%= environment.status %>"><%= environment.status.upcase %></span>
+            </span>
+            <span class="col-name">
+              <span class="environment-name"><%= environment.name %></span>
+            </span>
+            <span class="col-summary oneline">
+              <% last_check = environment.drift_checks.order(created_at: :desc).first %>
+              <% if last_check %>
+                <% if last_check.ok? %>
+                  No changes
+                <% elsif last_check.drift? || last_check.error? %>
+                  <% parts = [] %>
+                  <% parts << "#{last_check.add_count} to add" if last_check.add_count.to_i > 0 %>
+                  <% parts << "#{last_check.change_count} to change" if last_check.change_count.to_i > 0 %>
+                  <% parts << "#{last_check.destroy_count} to destroy" if last_check.destroy_count.to_i > 0 %>
+                  <%= parts.any? ? parts.join(", ") : "—" %>
+                <% else %>
+                  —
+                <% end %>
+              <% else %>
+                —
+              <% end %>
+            </span>
+            <span></span>
+            <span class="col-time">
+              <% if environment.last_checked_at %>
+                <%= time_ago_in_words(environment.last_checked_at) %> ago
+              <% else %>
+                Never
+              <% end %>
+            </span>
+            <span class="col-arrow">→</span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+</div>

@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  environment: production
+  status: 1
+  add_count: 0
+  change_count: 0
+  destroy_count: 0
+  raw_output: No changes detected
+
+two:
+  environment: staging
+  status: 2
+  add_count: 2
+  change_count: 1
+  destroy_count: 0
+  raw_output: Drift detected in resources

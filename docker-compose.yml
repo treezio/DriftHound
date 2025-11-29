@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: drifthound_postgres
+    environment:
+      POSTGRES_USER: drifthound
+      POSTGRES_PASSWORD: drifthound
+      POSTGRES_DB: drifthound_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drifthound -d drifthound_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: drifthound_app
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://drifthound:drifthound@postgres:5432/drifthound_development
+    depends_on:
+      - postgres
+    ports:
+      - "3000:80"
+    volumes:
+      - .:/rails
+volumes:
+  postgres_data:
+  redis_data:

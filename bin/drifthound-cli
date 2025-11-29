@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+# drifthound-cli: Run Terraform/Terragrunt/OpenTofu, parse drift, and send to DriftHound API
+require 'json'
+require 'net/http'
+require 'uri'
+
+# Usage: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=... [--dir=DIR]
+# Example: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=http://localhost:3000 --dir=infra
+
+require 'optparse'
+opts = {}
+
+OptionParser.new do |o|
+  o.on('--tool=TOOL', 'terraform|terragrunt|opentofu') { |v| opts[:tool] = v }
+  o.on('--project=KEY', 'Project key') { |v| opts[:project] = v }
+  o.on('--environment=ENV', 'Environment key') { |v| opts[:environment] = v }
+  o.on('--token=TOKEN', 'API token') { |v| opts[:token] = v }
+  o.on('--api-url=URL', 'API base URL') { |v| opts[:api_url] = v }
+  o.on('--dir=DIR', 'Working directory') { |v| opts[:dir] = v }
+end.parse!
+
+
+abort('Missing --tool') unless opts[:tool]
+abort('Missing --project') unless opts[:project]
+abort('Missing --environment') unless opts[:environment]
+abort('Missing --token') unless opts[:token]
+abort('Missing --api-url') unless opts[:api_url]
+
+dir = opts[:dir] || Dir.pwd
+cmd = case opts[:tool]
+      when 'terraform', 'opentofu' then [opts[:tool], 'plan', '-no-color']
+      when 'terragrunt' then ['terragrunt', 'plan', '-no-color']
+      else abort('Unknown tool')
+      end
+
+
+puts "Running: #{cmd.join(' ')} in #{dir}"
+start_time = Time.now
+output = IO.popen(cmd, chdir: dir, err: [:child, :out]) { |io| io.read }
+duration = Time.now - start_time
+puts output
+
+# Parse drift status and counts from output
+status = if output =~ /No changes|No drift detected/i
+  'ok'
+elsif output =~ /to add|to change|to destroy/i
+  'drift'
+elsif output =~ /Error:/i
+  'error'
+else
+  'unknown'
+end
+add_count = output[/ (\d+) to add/, 1]&.to_i || 0
+change_count = output[/ (\d+) to change/, 1]&.to_i || 0
+destroy_count = output[/ (\d+) to destroy/, 1]&.to_i || 0
+
+payload = {
+  status: status,
+  add_count: add_count,
+  change_count: change_count,
+  destroy_count: destroy_count,
+  duration: duration,
+  raw_output: output
+}
+
+uri = URI("#{opts[:api_url]}/api/v1/projects/#{opts[:project]}/environments/#{opts[:environment]}/checks")
+req = Net::HTTP::Post.new(uri)
+req['Authorization'] = "Bearer #{opts[:token]}"
+req['Content-Type'] = 'application/json'
+req.body = payload.to_json
+
+puts "Sending drift report to #{uri}..."
+res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
+puts "Response: #{res.code} #{res.body}"
+exit(res.code.to_i >= 400 ? 1 : 0)

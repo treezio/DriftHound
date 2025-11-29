@@ -1,0 +1,177 @@
+<div class="dashboard" data-controller="dashboard-filter">
+  <header class="dashboard-header">
+    <h1>🐕 DriftHound</h1>
+    <p class="subtitle">Terraform Drift Monitor</p>
+  </header>
+
+  <!-- Project status summary by aggregated status -->
+  <section class="status-summary">
+    <div class="status-badge status-ok" data-status-filter="ok" data-dashboard-filter-target="statusBadge" style="cursor:pointer;">
+      <span class="count"><%= @project_environment_status_counts["ok"] || 0 %></span>
+      <span class="label">OK</span>
+    </div>
+    <div class="status-badge status-drift" data-status-filter="drift" data-dashboard-filter-target="statusBadge" style="cursor:pointer;">
+      <span class="count"><%= @project_environment_status_counts["drift"] || 0 %></span>
+      <span class="label">Drift</span>
+    </div>
+    <div class="status-badge status-error" data-status-filter="error" data-dashboard-filter-target="statusBadge" style="cursor:pointer;">
+      <span class="count"><%= @project_environment_status_counts["error"] || 0 %></span>
+      <span class="label">Error</span>
+    </div>
+    <div class="status-badge status-unknown" data-status-filter="unknown" data-dashboard-filter-target="statusBadge" style="cursor:pointer;">
+      <span class="count"><%= @project_environment_status_counts["unknown"] || 0 %></span>
+      <span class="label">Unknown</span>
+    </div>
+  </section>
+
+  <section class="projects-list">
+    <h2>Projects</h2>
+    <% # Collect unique environment names for the filter %>
+    <% env_names = @project_environments.map { |_, env| env.name }.uniq.sort %>
+    <div class="dashboard-filter-bar">
+      <% if env_names.size > 1 %>
+        <select id="env-filter" class="filter-pill" data-dashboard-filter-target="envFilter">
+          <option value="">🌎 All Environments</option>
+          <% env_names.each do |name| %>
+            <option value="<%= name %>">🌱 <%= name %></option>
+          <% end %>
+        </select>
+      <% end %>
+      <span class="filter-sep"></span>
+      <span class="filter-search">
+        <span class="filter-icon">🔍</span>
+        <input id="name-filter" type="text" placeholder="Search projects or environments…" class="filter-input" data-dashboard-filter-target="nameFilter">
+      </span>
+      <button id="clear-filters" class="filter-clear" title="Clear filters" style="display:none;" data-dashboard-filter-target="clearBtn">✕</button>
+    </div>
+    <style>
+    .dashboard-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #f3f4f6;
+      border-radius: 2em;
+      padding: 0.5em 1.5em;
+      margin-bottom: 1.5em;
+      box-shadow: 0 2px 8px 0 #0001;
+      flex-wrap: wrap;
+      position: relative;
+      padding-right: 3.2em;
+    }
+    .filter-pill {
+      border: none;
+      background: #fff;
+      border-radius: 2em;
+      padding: 0.4em 2.2em 0.4em 1.2em;
+      font-size: 1em;
+      box-shadow: 0 1px 4px 0 #0001;
+      outline: none;
+      transition: box-shadow 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      position: relative;
+    }
+    .filter-pill::-ms-expand {
+      display: none;
+    }
+    .filter-pill {
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%236b7280" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1.1em center;
+      background-size: 1em;
+    }
+    .filter-pill:focus, .filter-pill[style*="background"] {
+      box-shadow: 0 0 0 2px #2563eb55;
+      background: #e0e7ff;
+    }
+    .filter-sep {
+      width: 1px;
+      height: 2em;
+      background: #e5e7eb;
+      margin: 0 0.5em;
+    }
+    .filter-search {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 2em;
+      padding: 0.2em 1em;
+      box-shadow: 0 1px 4px 0 #0001;
+      flex: 1 1 350px;
+      min-width: 300px;
+      max-width: 600px;
+    }
+    .filter-icon {
+      font-size: 1.1em;
+      margin-right: 0.5em;
+      color: #888;
+    }
+    .filter-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 1em;
+      min-width: 250px;
+      width: 100%;
+      padding: 0.3em 0;
+    }
+    .filter-clear {
+      position: absolute;
+      top: 50%;
+      right: 2em;
+      transform: translateY(-50%);
+      border: none;
+      background: #fff;
+      color: #888;
+      border-radius: 2em;
+      height: 2.4em;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px 0 #0001;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      padding: 0 1.2em;
+      z-index: 1;
+    }
+    .filter-clear:hover {
+      background: #f59e0b;
+      color: #fff;
+    }
+    </style>
+    <% if @project_environments.empty? %>
+      <div class="empty-state">
+        <p>No projects or environments yet.</p>
+        <p class="hint">Projects and environments are created automatically when you submit your first drift check via the API.</p>
+      </div>
+    <% else %>
+      <div class="projects-table" id="projects-table">
+        <div class="project-envs-header">
+          <span>Project</span>
+          <span>Environment</span>
+          <span>Status</span>
+          <span style="text-align:right;">Last Check</span>
+        </div>
+        <% @project_environments.each do |project, env| %>
+          <%= link_to project_environment_path(project.key, env.key), class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
+            <span class="col-project"><%= project.name %></span>
+            <span class="col-environment"><%= env.name %></span>
+            <span class="col-status">
+              <span class="status-indicator status-indicator--<%= env.last_check_status %>"></span>
+              <span class="status-text status-text--<%= env.last_check_status %>"><%= env.last_check_status.upcase %></span>
+            </span>
+            <span class="col-time" style="text-align:right;">
+              <% if env.last_checked_at %>
+                <%= time_ago_in_words(env.last_checked_at) %> ago
+              <% else %>
+                Never
+              <% end %>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+</div>
