@@ -22,8 +22,9 @@ module Drifthound
     # Eager load these paths in production
     config.eager_load_paths << Rails.root.join("app", "services")
 
-    # Don't add app/notifiers to autoload/eager_load paths
+    # Tell Zeitwerk to ignore app/notifiers completely
     # The Notifiers module and classes are manually loaded via initializer
+    Rails.autoloaders.main.ignore(Rails.root.join("app/notifiers"))
 
     # Configuration for the application, engines, and railties goes here.
     #
