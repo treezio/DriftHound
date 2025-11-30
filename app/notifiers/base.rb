@@ -3,6 +3,9 @@
 # - self.deliver(notification, config, state)
 # - self.update(state, notification, config)
 
+module Notifiers
+end
+
 class Notifiers::Base
   class NotImplementedError < StandardError; end
 

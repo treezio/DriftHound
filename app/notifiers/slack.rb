@@ -1,3 +1,6 @@
+module Notifiers
+end
+
 class Notifiers::Slack < Notifiers::Base
     def self.deliver(notification, config, state)
       client = build_client(config)
