@@ -34,3 +34,5 @@
 /config/master.key
 
 .DS_Store
+
+.claude/

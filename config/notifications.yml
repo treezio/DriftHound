@@ -1,0 +1,39 @@
+# Notification configuration for DriftHound
+# Configure notification channels and their default settings
+
+default: &default
+  slack:
+    # Enable or disable Slack notifications globally
+    enabled: <%= ENV.fetch('SLACK_NOTIFICATIONS_ENABLED', 'false') == 'true' %>
+
+    # Slack Bot Token (starts with xoxb-)
+    # Get this from https://api.slack.com/apps → Your App → OAuth & Permissions
+    token: <%= ENV['SLACK_BOT_TOKEN'] %>
+
+    # Default channel for drift notifications
+    # Can be overridden per-project or per-environment
+    default_channel: "<%= ENV.fetch('SLACK_DEFAULT_CHANNEL', '#infrastructure-drift') %>"
+
+development:
+  <<: *default
+  slack:
+    # In development, you might want to use a test channel
+    enabled: <%= ENV.fetch('SLACK_NOTIFICATIONS_ENABLED', 'false') == 'true' %>
+    token: <%= ENV['SLACK_BOT_TOKEN'] %>
+    default_channel: "<%= ENV.fetch('SLACK_DEFAULT_CHANNEL', '#drift-dev') %>"
+
+test:
+  <<: *default
+  slack:
+    # Disable notifications in tests by default
+    enabled: false
+    token: "xoxb-test-token"
+    default_channel: "#test-channel"
+
+production:
+  <<: *default
+  slack:
+    # Production settings
+    enabled: <%= ENV.fetch('SLACK_NOTIFICATIONS_ENABLED', 'false') == 'true' %>
+    token: <%= ENV['SLACK_BOT_TOKEN'] %>
+    default_channel: "<%= ENV.fetch('SLACK_DEFAULT_CHANNEL', '#infrastructure-drift') %>"

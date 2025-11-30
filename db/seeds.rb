@@ -14,6 +14,10 @@ Environment.delete_all
 Project.delete_all
 ApiToken.delete_all
 
+ApiToken.create!(name: "default-token")
+# Print token for reference
+puts "API Token: #{ApiToken.first.token}"
+
 # Example projects and environments
 data = [
   {

@@ -22,6 +22,9 @@ services:
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgres://drifthound:drifthound@postgres:5432/drifthound_development
+      SLACK_NOTIFICATIONS_ENABLED: "true"
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_DEFAULT_CHANNEL: "#infrastructure-drift"
     depends_on:
       - postgres
     ports:

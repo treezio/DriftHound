@@ -9,14 +9,17 @@ start:
 
 docker-run-tests:
 	docker compose up -d
+	docker compose exec app bin/rails db:environment:set RAILS_ENV=test
+	docker compose exec app bin/rails db:drop db:create db:migrate db:seed
 	docker compose exec app bin/rails test
+	docker compose exec app bin/rails test:system
 
 docker-db-setup:
 	docker compose up -d
 	docker compose exec app bin/rails db:drop db:create db:migrate db:seed
 
 docker-start:
-	docker compose up --build
+	docker compose up --build -d
 
 docker-token:
 	docker compose exec app bin/rails api_tokens:generate[my-ci-token]
