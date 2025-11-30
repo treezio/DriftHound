@@ -171,12 +171,4 @@ class Notifiers::Slack < Notifiers::Base
       else "#36A64F"  # Green for resolved states
       end
     end
-
-    def self.color_indicator(notification)
-      case notification.event_type
-      when :drift_detected then ":warning:"
-      when :error_detected then ":rotating_light:"
-      else ":white_check_mark:"
-      end
-    end
 end
