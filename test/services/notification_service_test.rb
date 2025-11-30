@@ -137,7 +137,7 @@ class NotificationServiceTest < ActiveSupport::TestCase
     env_channel = @environment.notification_channels.create!(
       channel_type: "email",
       enabled: true,
-      config: { recipients: ["env@example.com"] }
+      config: { recipients: [ "env@example.com" ] }
     )
 
     service = NotificationService.new(@environment, "ok", "drift")
@@ -190,7 +190,7 @@ class NotificationServiceTest < ActiveSupport::TestCase
     email_channel = @project.notification_channels.create!(
       channel_type: "email",
       enabled: true,
-      config: { recipients: ["team@example.com"] }
+      config: { recipients: [ "team@example.com" ] }
     )
 
     service = NotificationService.new(@environment, "ok", "drift")

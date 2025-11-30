@@ -29,7 +29,7 @@ module Api
 
       def update_notification_channel(environment)
         channel_params = params.require(:notification_channel)
-                               .permit(:channel_type, :enabled, config: [:channel])
+                               .permit(:channel_type, :enabled, config: [ :channel ])
 
         # Find or initialize the notification channel
         channel = environment.notification_channels
