@@ -16,7 +16,7 @@ docker-db-setup:
 	docker compose exec app bin/rails db:drop db:create db:migrate db:seed
 
 docker-start:
-	docker compose up --build
+	docker compose up --build -d
 
 docker-token:
 	docker compose exec app bin/rails api_tokens:generate[my-ci-token]

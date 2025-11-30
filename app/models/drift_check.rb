@@ -21,6 +21,18 @@ class DriftCheck < ApplicationRecord
   # Delegate project access for convenience
   delegate :project, to: :environment
 
+  def change_summary
+    return nil unless drift?
+    return "No changes specified" if add_count.nil? && change_count.nil? && destroy_count.nil?
+
+    parts = []
+    parts << "#{add_count} to add" if add_count && add_count > 0
+    parts << "#{change_count} to change" if change_count && change_count > 0
+    parts << "#{destroy_count} to destroy" if destroy_count && destroy_count > 0
+
+    parts.any? ? parts.join(", ") : "No changes"
+  end
+
   private
 
   def update_environment_status

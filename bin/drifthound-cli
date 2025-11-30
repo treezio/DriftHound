@@ -17,6 +17,7 @@ OptionParser.new do |o|
   o.on('--token=TOKEN', 'API token') { |v| opts[:token] = v }
   o.on('--api-url=URL', 'API base URL') { |v| opts[:api_url] = v }
   o.on('--dir=DIR', 'Working directory') { |v| opts[:dir] = v }
+  o.on('--slack-channel=CHANNEL', 'Slack channel for notifications (e.g., #drift-alerts)') { |v| opts[:slack_channel] = v }
 end.parse!
 
 
@@ -62,6 +63,17 @@ payload = {
   duration: duration,
   raw_output: output
 }
+
+# Add notification channel configuration if provided
+if opts[:slack_channel]
+  payload[:notification_channel] = {
+    channel_type: 'slack',
+    enabled: true,
+    config: {
+      channel: opts[:slack_channel]
+    }
+  }
+end
 
 uri = URI("#{opts[:api_url]}/api/v1/projects/#{opts[:project]}/environments/#{opts[:environment]}/checks")
 req = Net::HTTP::Post.new(uri)

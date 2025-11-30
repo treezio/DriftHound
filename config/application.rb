@@ -16,6 +16,14 @@ module Drifthound
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Custom directories for autoloading
+    config.autoload_paths << Rails.root.join("app", "notifiers")
+    config.autoload_paths << Rails.root.join("app", "services")
+
+    # Eager load these paths in production
+    config.eager_load_paths << Rails.root.join("app", "notifiers")
+    config.eager_load_paths << Rails.root.join("app", "services")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
