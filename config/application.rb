@@ -17,12 +17,13 @@ module Drifthound
     config.autoload_lib(ignore: %w[assets tasks])
 
     # Custom directories for autoloading
-    config.autoload_paths << Rails.root.join("app", "notifiers")
     config.autoload_paths << Rails.root.join("app", "services")
 
     # Eager load these paths in production
-    config.eager_load_paths << Rails.root.join("app", "notifiers")
     config.eager_load_paths << Rails.root.join("app", "services")
+
+    # Don't add app/notifiers to autoload/eager_load paths
+    # The Notifiers module and its classes are manually loaded in config/initializers/load_notifiers.rb
 
     # Configuration for the application, engines, and railties goes here.
     #
