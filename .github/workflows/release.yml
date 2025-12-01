@@ -8,6 +8,8 @@ on:
       - 'README.md'
       - 'docs/**'
       - '.github/**'  # includes workflow files, issue templates, etc.
+      - 'Makefile'
+      - 'docker-compose.yml'
 
 permissions:
   contents: write
