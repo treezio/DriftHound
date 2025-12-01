@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/treezio/DriftHound/compare/v0.2.0...v0.2.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* Release Docker Image ([d3c5c02](https://github.com/treezio/DriftHound/commit/d3c5c02047491d4afbef0371bce53b6232a2de93))
+
 ## [0.2.0](https://github.com/treezio/DriftHound/compare/v0.1.0...v0.2.0) (2025-11-30)
 
 
