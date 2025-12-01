@@ -3,9 +3,6 @@ name: Publish Docker image to GHCR
 on:
   release:
     types: [published, created]
-  push:
-    tags:
-      - 'v*'
 
 jobs:
   build-and-push:
