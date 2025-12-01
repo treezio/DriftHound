@@ -1,17 +1,11 @@
 # Changelog
 
-## [0.2.2](https://github.com/treezio/DriftHound/compare/v0.2.1...v0.2.2) (2025-12-01)
-
-
-### Bug Fixes
-
-* Trigger docker build push release whenever release is created ([397706d](https://github.com/treezio/DriftHound/commit/397706de3dd93f7f2c3ec2552cc1854eb4acc3cc))
-
 ## [0.2.1](https://github.com/treezio/DriftHound/compare/v0.2.0...v0.2.1) (2025-12-01)
 
 
 ### Bug Fixes
 
+* Trigger docker build push release whenever release is created ([397706d](https://github.com/treezio/DriftHound/commit/397706de3dd93f7f2c3ec2552cc1854eb4acc3cc))
 * Release Docker Image ([d3c5c02](https://github.com/treezio/DriftHound/commit/d3c5c02047491d4afbef0371bce53b6232a2de93))
 
 ## [0.2.0](https://github.com/treezio/DriftHound/compare/v0.1.0...v0.2.0) (2025-11-30)
