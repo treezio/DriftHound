@@ -83,84 +83,32 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
 
 ## CLI Usage
 
-DriftHound provides a Ruby CLI to automate drift checks and report results to the server. This is ideal for CI pipelines.
+DriftHound provides a CLI to automate drift checks in CI/CD pipelines.
 
 ### Quick Install
-
-You can install the CLI directly without cloning the repo:
 
 ```sh
 sudo curl -L https://raw.githubusercontent.com/treezio/DriftHound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
 ```
 
-This will make the `drifthound` command available globally.
-
-### Usage
+### Usage Example
 
 ```sh
-drifthound --tool=terraform|terragrunt|opentofu \
-  --project=PROJECT_KEY \
-  --environment=ENV_KEY \
-  --token=API_TOKEN \
+drifthound --tool=terraform \
+  --project=my-project \
+  --environment=production \
+  --token=YOUR_API_TOKEN \
   --api-url=http://localhost:3000 \
-  --dir=PATH_TO_INFRA_DIR
+  --dir=./terraform
 ```
 
-#### Example
-
-```sh
-drifthound --tool=terragrunt --project=shipping --environment=production \
-  --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
-```
-
-### Run the CLI via Docker
-
-You can also run the CLI directly from the published Docker image, without installing Ruby or dependencies locally:
-
-```sh
-docker run --rm \
-  -v "$(pwd)":/infra \
-  -w /infra \
-  ghcr.io/treezio/drifthound:<tag> \
-  bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
-    --project=PROJECT_KEY \
-    --environment=ENV_KEY \
-    --token=API_TOKEN \
-    --api-url=http://your-drifthound-server \
-    --dir=.
-```
-
-Replace `<tag>` with the desired image version (e.g., `v0.1.0`).
-
-This mounts your current directory into the container and runs the CLI as if it were installed locally.
-
-#### Example
-
-```sh
-docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
-  bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
-  --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
-```
-
-#### Options
-
-| Option            | Required | Description                                  |
-|-------------------|----------|----------------------------------------------|
-| `--tool`          | Yes      | `terraform`, `terragrunt`, or `opentofu`     |
-| `--project`       | Yes      | Project key                                  |
-| `--environment`   | Yes      | Environment key                              |
-| `--token`         | Yes      | API token                                    |
-| `--api-url`       | Yes      | DriftHound API base URL                      |
-| `--dir`           | No       | Directory to run the tool in (default: `.`)  |
-| `--slack-channel` | No       | Slack Channel to send notifications to.      |
-
-The CLI will run the specified tool's plan command, parse the output, and send a drift report to the API. The payload includes drift status, resource counts, duration, and the full plan output.
+📖 See [docs/cli-usage.md](docs/cli-usage.md) for detailed CLI documentation, Docker usage, and CI/CD integration examples.
 
 ---
 
 ## API Usage
 
-### Submit a Drift Check
+You can submit drift check results directly to the API:
 
 ```bash
 curl -X POST \
@@ -177,51 +125,21 @@ curl -X POST \
   }'
 ```
 
-### Request Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `project_key` | string | Yes (URL) | Unique identifier for the project (alphanumeric, dashes, underscores) |
-| `environment_key` | string | Yes (URL) | Unique identifier for the environment (alphanumeric, dashes, underscores) |
-| `status` | string | Yes | One of: `ok`, `drift`, `error`, `unknown` |
-| `add_count` | integer | No | Number of resources to add |
-| `change_count` | integer | No | Number of resources to change |
-| `destroy_count` | integer | No | Number of resources to destroy |
-| `duration` | float | No | Execution duration in seconds |
-| `raw_output` | text | No | Full Terraform plan output |
-
-### Response
-
-```json
-{
-  "id": 123,
-  "project_key": "my-project",
-  "status": "drift",
-  "created_at": "2025-11-27T10:30:00Z"
-}
-```
-
-### Status Values
-
-| Status | Description |
-|--------|-------------|
-| `ok` | No drift detected - infrastructure matches state |
-| `drift` | Drift detected - changes pending |
-| `error` | Error running drift check |
-| `unknown` | Initial state or unable to determine |
-
-## API Token Management
-
+**Generate an API Token:**
 ```bash
-# Generate a new token
 bin/rails api_tokens:generate[token-name]
-
-# List all tokens
-bin/rails api_tokens:list
-
-# Revoke a token
-bin/rails api_tokens:revoke[TOKEN_ID]
 ```
+
+📖 See [docs/api-usage.md](docs/api-usage.md) for complete API documentation, including advanced features and examples.
+
+---
+
+## Documentation
+
+- **[Configuration Guide](docs/configuration.md)** - Environment variables, database setup, Slack configuration, and deployment examples
+- **[CLI Guide](docs/cli-usage.md)** - Detailed CLI documentation, Docker usage, and CI/CD integration examples
+- **[API Reference](docs/api-usage.md)** - Complete API documentation, advanced features, and integration examples
+- **[Slack Notifications](docs/slack-notifications.md)** - Configure Slack alerts for drift detection
 
 ## Architecture
 
@@ -230,6 +148,11 @@ flowchart LR
     A["CI/CD (Terraform)"] --> B["DriftHound API"]
     B --> C["PostgreSQL (Storage)"]
 ```
+
+### TODO
+
+- Checks History CleanUp strategy
+- Slack Notification State Update/Edit
 
 ## License
 
