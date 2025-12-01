@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/treezio/DriftHound/compare/v0.2.3...v0.2.4) (2025-12-01)
+
+
+### Bug Fixes
+
+* Set high res logo in dashboard ([#26](https://github.com/treezio/DriftHound/issues/26)) ([f756687](https://github.com/treezio/DriftHound/commit/f756687cad0bb9d7059a2041018908e81ae38676))
+
 ## [0.2.3](https://github.com/treezio/DriftHound/compare/v0.2.2...v0.2.3) (2025-12-01)
 
 
