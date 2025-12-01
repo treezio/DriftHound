@@ -1,0 +1,339 @@
+# Configuration Guide
+
+DriftHound can be configured using environment variables for deployment flexibility. This guide covers all available configuration options.
+
+## Table of Contents
+
+- [Application Settings](#application-settings)
+- [Database Configuration](#database-configuration)
+- [Slack Notifications](#slack-notifications)
+- [Web Server Settings](#web-server-settings)
+- [Logging Configuration](#logging-configuration)
+- [Job Queue Configuration](#job-queue-configuration)
+- [Complete Example](#complete-example)
+
+## Application Settings
+
+### APP_URL
+
+The base URL where DriftHound is hosted. Used for generating links in Slack notifications.
+
+**Required:** Recommended for production
+**Default:** `http://localhost:3000`
+**Example:** `https://drifthound.example.com`
+
+```bash
+APP_URL=https://drifthound.example.com
+```
+
+**Usage:**
+- Generates clickable "View in DriftHound" buttons in Slack notifications
+- Should match your actual domain (without trailing slash)
+
+### RAILS_ENV
+
+The Rails environment to run in.
+
+**Required:** No
+**Default:** `development`
+**Options:** `development`, `test`, `production`
+
+```bash
+RAILS_ENV=production
+```
+
+### RAILS_LOG_LEVEL
+
+Controls the verbosity of application logs.
+
+**Required:** No
+**Default:** `info`
+**Options:** `debug`, `info`, `warn`, `error`, `fatal`
+
+```bash
+RAILS_LOG_LEVEL=info
+```
+
+**Recommendations:**
+- `info` for production (default)
+- `debug` for troubleshooting (includes SQL queries and detailed logs)
+- `warn` or `error` for high-traffic deployments
+
+## Database Configuration
+
+DriftHound uses PostgreSQL and supports multiple databases for different concerns (primary, cache, queue, cable).
+
+### DRIFTHOUND_DATABASE_PASSWORD
+
+PostgreSQL password for the production database.
+
+**Required:** Yes (production only)
+**Example:**
+
+```bash
+DRIFTHOUND_DATABASE_PASSWORD=your-secure-password
+```
+
+### DATABASE_URL (Alternative)
+
+You can also provide a full PostgreSQL connection URL instead of individual settings.
+
+**Required:** No (alternative to individual settings)
+**Example:**
+
+```bash
+DATABASE_URL=postgresql://username:password@host:port/database_name
+```
+
+### RAILS_MAX_THREADS
+
+Maximum number of database connections per process.
+
+**Required:** No
+**Default:** `5`
+**Example:**
+
+```bash
+RAILS_MAX_THREADS=5
+```
+
+**Note:** This affects database connection pool size. Adjust based on your workload and available database connections.
+
+### Database Configuration Files
+
+Database settings are defined in [config/database.yml](../config/database.yml):
+
+**Development:**
+- Host: `localhost:5432`
+- Database: `drifthound_development`
+- Username: `drifthound`
+- Password: `drifthound`
+
+**Production:**
+- Database: `drifthound_production` - Single database for all application data
+- Username: `drifthound`
+- Password: Set via `DRIFTHOUND_DATABASE_PASSWORD`
+
+**Note:** DriftHound uses in-memory adapters for caching and background jobs. This keeps the setup simple and is sufficient for low to medium traffic applications. Only one database is needed.
+
+## Slack Notifications
+
+DriftHound can send Slack notifications when drift is detected. Configuration can be done via environment variables or [config/notifications.yml](../config/notifications.yml).
+
+### SLACK_NOTIFICATIONS_ENABLED
+
+Enable or disable Slack notifications globally.
+
+**Required:** Yes (to enable Slack)
+**Default:** `false`
+**Example:**
+
+```bash
+SLACK_NOTIFICATIONS_ENABLED=true
+```
+
+### SLACK_BOT_TOKEN
+
+Your Slack Bot User OAuth Token.
+
+**Required:** Yes (if Slack is enabled)
+**Format:** Starts with `xoxb-`
+**Example:**
+
+```bash
+SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
+```
+
+**How to get a token:**
+1. Go to https://api.slack.com/apps
+2. Create a new app or select an existing one
+3. Navigate to "OAuth & Permissions"
+4. Add the following Bot Token Scopes:
+   - `chat:write` - Post messages
+   - `chat:write.public` - Post to public channels without joining
+   - `chat:write.customize` - Message format customization
+5. Install the app to your workspace
+6. Copy the "Bot User OAuth Token"
+
+### SLACK_DEFAULT_CHANNEL
+
+Default Slack channel for drift notifications.
+
+**Required:** No
+**Default:** `#infrastructure-drift`
+**Format:** Channel name with `#` prefix
+**Example:**
+
+```bash
+SLACK_DEFAULT_CHANNEL=#infra-alerts
+```
+
+**Note:** This can be overridden per-environment via the API or CLI using the `--slack-channel` flag.
+
+### Notification Configuration File
+
+Alternatively, you can configure notifications in [config/notifications.yml](../config/notifications.yml). Environment variables take precedence and are interpolated in the YAML file.
+
+📖 See [Slack Notifications Guide](slack-notifications.md) for detailed setup instructions.
+
+## Web Server Settings
+
+DriftHound uses Puma as its web server.
+
+### PORT
+
+The port the web server listens on.
+
+**Required:** No
+**Default:** `3000`
+**Example:**
+
+```bash
+PORT=8080
+```
+
+### RAILS_MAX_THREADS
+
+Number of threads per Puma worker.
+
+**Required:** No
+**Default:** `3`
+**Example:**
+
+```bash
+RAILS_MAX_THREADS=5
+```
+
+### WEB_CONCURRENCY
+
+Number of Puma worker processes.
+
+**Required:** No
+**Default:** `0` (single process mode)
+**Example:**
+
+```bash
+WEB_CONCURRENCY=2
+```
+
+**Recommendations:**
+- Set to number of CPU cores for production
+- Each worker consumes additional memory
+- Not needed for small deployments
+
+## Logging Configuration
+
+### Log Output
+
+In production, DriftHound logs to STDOUT with request ID tagging for easy integration with log aggregation services (e.g., CloudWatch, Datadog, Splunk).
+
+### Silenced Endpoints
+
+The `/up` health check endpoint is silenced by default to prevent log clutter. This is configured in [config/environments/production.rb](../config/environments/production.rb):
+
+```ruby
+config.silence_healthcheck_path = "/up"
+```
+
+## Background Jobs
+
+DriftHound uses Rails' async adapter for background job processing. This means:
+- Jobs (like sending Slack notifications) run in background threads within the web process
+- No separate job processor or database is needed
+- Simple deployment with automatic job processing
+- Jobs are lost if the process crashes before completion (acceptable for notifications)
+
+**Note:** For high-traffic applications where job durability is critical, you may want to switch to Solid Queue or Sidekiq in the future.
+
+## Complete Example
+
+### Production Environment Variables
+
+Create a `.env` file or configure your deployment platform with these variables:
+
+```bash
+# Application
+RAILS_ENV=production
+APP_URL=https://drifthound.example.com
+RAILS_LOG_LEVEL=info
+
+# Database
+DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password
+
+# Slack Notifications
+SLACK_NOTIFICATIONS_ENABLED=true
+SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
+SLACK_DEFAULT_CHANNEL=#infrastructure-drift
+
+# Web Server
+PORT=3000
+RAILS_MAX_THREADS=5
+WEB_CONCURRENCY=2
+```
+
+## Verification
+
+After configuration, verify your setup:
+
+### Check Health Endpoint
+
+```bash
+curl http://localhost:3000/up
+```
+
+Should return `200 OK`.
+
+### Test API Authentication
+
+```bash
+# Generate a test token
+bin/rails api_tokens:generate[test]
+
+# Test API call
+curl -X POST http://localhost:3000/api/v1/projects/test/environments/dev/checks \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "ok"}'
+```
+
+### Verify Slack Integration
+
+Check Rails logs for notification configuration:
+
+```bash
+bin/rails runner "puts Rails.application.config.notifications.inspect"
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+
+```bash
+# Test database connection
+bin/rails runner "puts ActiveRecord::Base.connection.execute('SELECT 1').to_a"
+```
+
+### Slack Notification Issues
+
+```bash
+# Check Slack configuration
+bin/rails runner "puts Rails.application.config.notifications[:slack].inspect"
+
+# Test Slack connection manually
+bin/rails console
+> client = Slack::Web::Client.new(token: ENV['SLACK_BOT_TOKEN'])
+> client.chat_postMessage(channel: '#test', text: 'Test message')
+```
+
+### Port Already in Use
+
+```bash
+# Change the port
+PORT=8080 bin/rails server
+```
+
+## See Also
+
+- [Slack Notifications Setup](slack-notifications.md) - Detailed Slack configuration guide
+- [API Usage](api-usage.md) - API token management
+- [CLI Usage](cli-usage.md) - Using environment variables with the CLI
