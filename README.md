@@ -151,6 +151,7 @@ flowchart LR
 
 ### TODO
 
+- Improve UNKNOWN status handling (slack notifications and error handling)
 - Checks History CleanUp strategy
 - Slack Notification State Update/Edit
 
