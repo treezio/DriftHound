@@ -1,7 +1,7 @@
 <div class="environment-detail">
   <header class="project-header">
     <div class="breadcrumb">
-      <%= link_to "🐕 DriftHound", root_path %> › <%= link_to @project.name, project_path(@project.key) %> › <span><%= @environment.name %></span>
+      <%= link_to "DriftHound", root_path %> › <%= link_to @project.name, project_path(@project.key) %> › <span><%= @environment.name %></span>
     </div>
     <%= link_to "← Back to #{@project.name}", project_path(@project.key), class: "back-link" %>
   </header>
