@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '.github/**'  # includes workflow files, issue templates, etc.
 
 permissions:
   contents: write
