@@ -4,15 +4,16 @@ setup:
 	bundle install
 	bin/rails db:drop db:create db:migrate db:seed
 
+prepare-test-db:
+	docker compose up -d
+	RAILS_ENV=test bin/rails db:create db:migrate
+
+run-tests:
+	RAILS_ENV=test bin/rails test
+	RAILS_ENV=test bin/rails test:system
+
 start:
 	bin/rails server
-
-docker-run-tests:
-	docker compose up -d
-	docker compose exec app bin/rails db:environment:set RAILS_ENV=test
-	docker compose exec app bin/rails db:drop db:create db:migrate db:seed
-	docker compose exec app bin/rails test
-	docker compose exec app bin/rails test:system
 
 docker-db-setup:
 	docker compose up -d
@@ -29,6 +30,3 @@ docker-stop:
 
 docker-destroy:
 	docker compose down -v
-
-test:
-	bin/rails test

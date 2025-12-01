@@ -42,38 +42,44 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
   ```bash
   bundle install
   ```
-2. **Database Setup**
+2. **Start database**
   ```bash
-  bin/rails db:create db:migrate
+  docker compose up postgres -d
   ```
-3. **Generate an API Token**
+
+3. **Database Setup**
   ```bash
-  bin/rails api_tokens:generate[my-ci-token]
+  bin/rails db:create db:migrate db:seed
   ```
-  This will output a token to use in your API requests.
-4. **Start the Server**
+1. **Start the Server**
   ```bash
   bin/rails server
   ```
 
+#### Running Tests
+
+> [!IMPORTANT]
+> Running System tests requires google-chrome to be installed.
+
+1. Create Test DB
+  ```bash
+  make prepare-test-db
+  ```
+
+2. Unit Tests
+  ```bash
+  make run-tests
+  ```
+
 ### Docker Setup
 
-1. **Build and Start Services**
+**Provision Database and Start Application**
   ```bash
-  docker-compose up --build
+  make docker-db-setup
   ```
+  This will start the services then create, migrate, and seed the database.
+  Also automatically creates the API token in the seeding step.
 
-2. **Provision the Database (inside the container)**
-  ```bash
-  docker-compose exec app bin/rails db:setup
-  ```
-  This will create, migrate, and seed the database.
-
-3. **Generate an API Token (inside the container)**
-  ```bash
-  docker-compose exec app bin/rails api_tokens:generate[my-ci-token]
-  ```
-  This will output a token to use in your API requests.
 
 ## CLI Usage
 
@@ -136,17 +142,17 @@ docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
   --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
 ```
 
-
 #### Options
 
-| Option           | Required | Description                                  |
-|------------------|----------|----------------------------------------------|
-| `--tool`         | Yes      | `terraform`, `terragrunt`, or `opentofu`     |
-| `--project`      | Yes      | Project key                                  |
-| `--environment`  | Yes      | Environment key                              |
-| `--token`        | Yes      | API token                                    |
-| `--api-url`      | Yes      | DriftHound API base URL                      |
-| `--dir`          | No       | Directory to run the tool in (default: `.`)  |
+| Option            | Required | Description                                  |
+|-------------------|----------|----------------------------------------------|
+| `--tool`          | Yes      | `terraform`, `terragrunt`, or `opentofu`     |
+| `--project`       | Yes      | Project key                                  |
+| `--environment`   | Yes      | Environment key                              |
+| `--token`         | Yes      | API token                                    |
+| `--api-url`       | Yes      | DriftHound API base URL                      |
+| `--dir`           | No       | Directory to run the tool in (default: `.`)  |
+| `--slack-channel` | No       | Slack Channel to send notifications to.      |
 
 The CLI will run the specified tool's plan command, parse the output, and send a drift report to the API. The payload includes drift status, resource counts, duration, and the full plan output.
 
@@ -155,7 +161,6 @@ The CLI will run the specified tool's plan command, parse the output, and send a
 ## API Usage
 
 ### Submit a Drift Check
-
 
 ```bash
 curl -X POST \
@@ -218,18 +223,6 @@ bin/rails api_tokens:list
 bin/rails api_tokens:revoke[TOKEN_ID]
 ```
 
-## Running Tests
-
-```bash
-bin/rails test
-```
-
-## Docker
-
-```bash
-docker-compose up --build
-```
-
 ## Architecture
 
 ```mermaid
@@ -237,10 +230,6 @@ flowchart LR
     A["CI/CD (Terraform)"] --> B["DriftHound API"]
     B --> C["PostgreSQL (Storage)"]
 ```
-
-## ToDo's
-
-- Slack notifications: Send alerts when drift is detected
 
 ## License
 
