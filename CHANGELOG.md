@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5](https://github.com/treezio/DriftHound/compare/v0.2.4...v0.2.5) (2025-12-01)
+
+
+### Bug Fixes
+
+* Set github token in release please action properly ([#28](https://github.com/treezio/DriftHound/issues/28)) ([5bc4f68](https://github.com/treezio/DriftHound/commit/5bc4f68ee0343bfcc80117f621605ced48386ab7))
+
 ## [0.2.4](https://github.com/treezio/DriftHound/compare/v0.2.3...v0.2.4) (2025-12-01)
 
 
