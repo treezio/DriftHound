@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/treezio/DriftHound/compare/v0.2.2...v0.2.3) (2025-12-01)
+
+
+### Bug Fixes
+
+* remove doggo emoji ([#24](https://github.com/treezio/DriftHound/issues/24)) ([97910ec](https://github.com/treezio/DriftHound/commit/97910ec2d7347ae635cb676fe51ad3709daed234))
+
 ## [0.2.1](https://github.com/treezio/DriftHound/compare/v0.2.0...v0.2.1) (2025-12-01)
 
 
