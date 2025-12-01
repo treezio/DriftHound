@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.0](https://github.com/treezio/DriftHound/compare/v0.1.0...v0.2.0) (2025-11-30)
+
+
+### Features
+
+* Create notifications system ([8b57be7](https://github.com/treezio/DriftHound/commit/8b57be7a97da520695eb385066c0546f41b782af))
+* Docker Release ([8989412](https://github.com/treezio/DriftHound/commit/8989412059ddfc8da779e622ea6a043603745240))
+* Run CLI from Docker Image ([0969ff3](https://github.com/treezio/DriftHound/commit/0969ff3b21c13d401f686cf3ec54fa6b70d5d388))
+
+
+### Bug Fixes
+
+* attempt to fix test execution issues in github actions ([fc26568](https://github.com/treezio/DriftHound/commit/fc26568ac47578554a83b0824f4990f470b874f9))
+* attempt to fix test execution issues in github actions ([04f29a8](https://github.com/treezio/DriftHound/commit/04f29a8ac6e1cb4476b8faacc4a5d80890cb8cab))
+* attempt to fix test execution issues in github actions ([684097f](https://github.com/treezio/DriftHound/commit/684097f2ab08d0ccdd76b52b19a0125fc9157aa1))
+* force image generation ([a840873](https://github.com/treezio/DriftHound/commit/a84087395ff669bbfc700c620bd168bc21ded41d))
+* Ignore claude config ([df0c0ef](https://github.com/treezio/DriftHound/commit/df0c0ef8a38f02e395e686260ee6f2e275946db6))
+* repository name ([685ba05](https://github.com/treezio/DriftHound/commit/685ba05e165253064de2b1a8e06c9ba3e2009b32))
+* testing execution issues emulating CI in local env ([3864ee1](https://github.com/treezio/DriftHound/commit/3864ee14d18d09faeed996710e8c236061de0b28))
+* tests execution ([d6397bd](https://github.com/treezio/DriftHound/commit/d6397bd9bc357a953a76bfb11c5fd0c599039167))
+
 ## 0.1.0 (2025-11-29)
 
 
