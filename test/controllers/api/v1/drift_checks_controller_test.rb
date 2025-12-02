@@ -36,7 +36,7 @@ class Api::V1::DriftChecksControllerTest < ActionDispatch::IntegrationTest
 
     project = Project.find_by(key: "new-infra-project")
     assert_not_nil project
-    assert_equal "New Infra Project", project.name
+    assert_equal "new-infra-project", project.name
 
     environment = project.environments.find_by(key: "production")
     assert_not_nil environment

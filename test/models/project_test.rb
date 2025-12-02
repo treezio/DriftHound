@@ -37,11 +37,11 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
-  test "find_or_create_by_key creates new project with titleized name" do
+  test "find_or_create_by_key creates new project with key as name" do
     assert_difference "Project.count", 1 do
       project = Project.find_or_create_by_key("my-infra-project")
       assert_equal "my-infra-project", project.key
-      assert_equal "My Infra Project", project.name
+      assert_equal "my-infra-project", project.name
     end
   end
 

@@ -21,16 +21,16 @@ puts "API Token: #{ApiToken.first.token}"
 # Example projects and environments
 data = [
   {
-    name: "Payment Service",
+    name: "payment-service",
     key: "payment-service",
     environments: [
       { name: "Production", key: "production", status: :ok },
       { name: "Staging", key: "staging", status: :drift },
-      { name: "Dev", key: "dev", status: :unknown }
+      { name: "Dev", key: "dev", status: :ok }
     ]
   },
   {
-    name: "User API",
+    name: "user-api",
     key: "user-api",
     environments: [
       { name: "Production", key: "production", status: :ok },
@@ -38,7 +38,7 @@ data = [
     ]
   },
   {
-    name: "Analytics",
+    name: "analytics",
     key: "analytics",
     environments: [
       { name: "Prod", key: "prod", status: :ok }
@@ -53,7 +53,7 @@ data.each do |proj|
     environment = project.environments.create!(name: env[:name], key: env[:key], status: env[:status], last_checked_at: rand(1..10).days.ago)
     # Add 3 drift checks per environment
     3.times do |i|
-      status = [ :ok, :drift, :error, :unknown ].sample
+      status = [ :ok, :drift ].sample
       environment.drift_checks.create!(
         status: status,
         add_count: rand(0..3),

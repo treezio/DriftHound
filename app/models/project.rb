@@ -10,7 +10,7 @@ class Project < ApplicationRecord
 
   def self.find_or_create_by_key(key)
     find_or_create_by(key: key) do |project|
-      project.name = key.titleize
+      project.name = key
     end
   end
 
