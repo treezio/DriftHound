@@ -21,7 +21,7 @@ puts "API Token: #{ApiToken.first.token}"
 # Example projects and environments
 data = [
   {
-    name: "Payment Service",
+    name: "payment-service",
     key: "payment-service",
     environments: [
       { name: "Production", key: "production", status: :ok },
@@ -30,7 +30,7 @@ data = [
     ]
   },
   {
-    name: "User API",
+    name: "user-api",
     key: "user-api",
     environments: [
       { name: "Production", key: "production", status: :ok },
@@ -38,7 +38,7 @@ data = [
     ]
   },
   {
-    name: "Analytics",
+    name: "analytics",
     key: "analytics",
     environments: [
       { name: "Prod", key: "prod", status: :ok }
