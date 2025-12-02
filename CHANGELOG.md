@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.6](https://github.com/treezio/DriftHound/compare/v0.2.5...v0.2.6) (2025-12-02)
+
+
+### Bug Fixes
+
+* Set project name as key ([#36](https://github.com/treezio/DriftHound/issues/36)) ([757e186](https://github.com/treezio/DriftHound/commit/757e186cadf27c594c4d07f78b45964804b5c8c0))
+
 ## [0.2.5](https://github.com/treezio/DriftHound/compare/v0.2.4...v0.2.5) (2025-12-01)
 
 
