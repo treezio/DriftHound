@@ -134,6 +134,28 @@ bin/rails api_tokens:generate[token-name]
 
 ---
 
+## Deployment
+
+DriftHound can be deployed to production environments using Docker and Kubernetes.
+
+### Docker Images
+
+Pre-built Docker images are available in the GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/treezio/drifthound:latest
+```
+
+### Kubernetes Deployment
+
+A Helm chart is available for deploying DriftHound to Kubernetes clusters:
+
+📦 **Helm Chart Repository**: [https://github.com/treezio/helm-chart-drifthound/](https://github.com/treezio/helm-chart-drifthound/)
+
+For deployment instructions and configuration options, refer to the Helm chart documentation.
+
+---
+
 ## Documentation
 
 - **[Configuration Guide](docs/configuration.md)** - Environment variables, database setup, Slack configuration, and deployment examples
