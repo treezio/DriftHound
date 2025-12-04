@@ -134,6 +134,14 @@ bin/rails api_tokens:generate[token-name]
 
 ---
 
+## GitHub Actions Integration
+
+Automate drift detection in your GitHub workflows with the official DriftHound GitHub Action.
+
+🔄 **GitHub Action**: [https://github.com/treezio/drifthound-action](https://github.com/treezio/drifthound-action)
+
+---
+
 ## Deployment
 
 DriftHound can be deployed to production environments using Docker and Kubernetes.
