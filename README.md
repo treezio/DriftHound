@@ -187,4 +187,4 @@ flowchart LR
 
 ## License
 
-MIT
+AGPL-3.0
