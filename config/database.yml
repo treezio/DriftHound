@@ -64,3 +64,4 @@ production:
   database: drifthound_production
   username: drifthound
   password: <%= ENV["DRIFTHOUND_DATABASE_PASSWORD"] %>
+  host: <%= ENV["DRIFTHOUND_DATABASE_HOST"] %>
