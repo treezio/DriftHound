@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.7](https://github.com/treezio/DriftHound/compare/v0.2.6...v0.2.7) (2025-12-06)
+
+
+### Bug Fixes
+
+* Add database host environment variable and fix gemfile issues ([#40](https://github.com/treezio/DriftHound/issues/40)) ([0a02f97](https://github.com/treezio/DriftHound/commit/0a02f97ae4ae3201562da9edafdcd991578d27cc))
+
 ## [0.2.6](https://github.com/treezio/DriftHound/compare/v0.2.5...v0.2.6) (2025-12-02)
 
 
