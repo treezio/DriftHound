@@ -59,6 +59,33 @@ RAILS_LOG_LEVEL=info
 - `debug` for troubleshooting (includes SQL queries and detailed logs)
 - `warn` or `error` for high-traffic deployments
 
+### SECRET_KEY_BASE
+
+Rails secret key used for encrypting sessions, cookies, and other sensitive data.
+
+**Required:** Yes (production only)
+**Format:** 128-character hexadecimal string (64 bytes)
+
+```bash
+SECRET_KEY_BASE=your-generated-secret-key-base
+```
+
+**How to generate:**
+
+```bash
+# Using OpenSSL (recommended)
+openssl rand -hex 64
+
+# Or using Rails (requires working bundle)
+bin/rails secret
+```
+
+**Security Notes:**
+- **Never commit this to version control**
+- Use a secrets management system (e.g., sops, AWS Secrets Manager, HashiCorp Vault)
+- Changing this value will invalidate all existing sessions and encrypted data
+- Each environment should use a different secret
+
 ## Database Configuration
 
 DriftHound uses PostgreSQL and supports multiple databases for different concerns (primary, cache, queue, cable).
@@ -256,6 +283,7 @@ Create a `.env` file or configure your deployment platform with these variables:
 RAILS_ENV=production
 APP_URL=https://drifthound.example.com
 RAILS_LOG_LEVEL=info
+SECRET_KEY_BASE=340b6113695da1baed5d5b7945bff4dc4ab86b75f602c5183624c1b87ffc17d192c18572196456bc3242b13ebf74ab75053c9c87ee2202d2718fbfe85e2ff94a
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password
