@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.9](https://github.com/treezio/DriftHound/compare/v0.2.8...v0.2.9) (2025-12-10)
+
+
+### Bug Fixes
+
+* docker cmd and docker compose port ([#46](https://github.com/treezio/DriftHound/issues/46)) ([b154369](https://github.com/treezio/DriftHound/commit/b154369f972a331dbf03ab91d51c60b66c78896a))
+
 ## [0.2.8](https://github.com/treezio/DriftHound/compare/v0.2.7...v0.2.8) (2025-12-10)
 
 
