@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.8](https://github.com/treezio/DriftHound/compare/v0.2.7...v0.2.8) (2025-12-10)
+
+
+### Bug Fixes
+
+* Configure production mode for basic app ([#44](https://github.com/treezio/DriftHound/issues/44)) ([fcdbe73](https://github.com/treezio/DriftHound/commit/fcdbe733b46c2aa900b48edf1efa6b540a7f60fc))
+
 ## [0.2.7](https://github.com/treezio/DriftHound/compare/v0.2.6...v0.2.7) (2025-12-06)
 
 
