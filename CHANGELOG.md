@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.10](https://github.com/treezio/DriftHound/compare/v0.2.9...v0.2.10) (2025-12-10)
+
+
+### Bug Fixes
+
+* remove production cache config ([#48](https://github.com/treezio/DriftHound/issues/48)) ([dba2068](https://github.com/treezio/DriftHound/commit/dba20685760409afeb081bbf99b2e4f48252805c))
+
 ## [0.2.9](https://github.com/treezio/DriftHound/compare/v0.2.8...v0.2.9) (2025-12-10)
 
 
