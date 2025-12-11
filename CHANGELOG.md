@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.11](https://github.com/treezio/DriftHound/compare/v0.2.10...v0.2.11) (2025-12-11)
+
+
+### Bug Fixes
+
+* Missing notifications and improve seeding tests ([#51](https://github.com/treezio/DriftHound/issues/51)) ([096a39a](https://github.com/treezio/DriftHound/commit/096a39a83bbe810060402ddc1fa019288cb5432c))
+
 ## [0.2.10](https://github.com/treezio/DriftHound/compare/v0.2.9...v0.2.10) (2025-12-10)
 
 
