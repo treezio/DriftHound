@@ -2,6 +2,11 @@
 # Configure notification channels and their default settings
 
 default: &default
+  # Notify on first check when drift or error is detected (unknown → drift/error)
+  # By default, first checks are skipped to establish a baseline
+  # Set to true to receive notifications immediately on first drift/error
+  notify_on_first_check: <%= ENV.fetch('NOTIFY_ON_FIRST_CHECK', 'false') == 'true' %>
+
   slack:
     # Enable or disable Slack notifications globally
     enabled: <%= ENV.fetch('SLACK_NOTIFICATIONS_ENABLED', 'false') == 'true' %>
@@ -24,6 +29,7 @@ development:
 
 test:
   <<: *default
+  notify_on_first_check: false
   slack:
     # Disable notifications in tests by default
     enabled: false

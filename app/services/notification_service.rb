@@ -30,7 +30,18 @@ class NotificationService
 
   def initial_check?
     # Don't notify when transitioning from unknown (initial state)
+    # unless notify_on_first_check is enabled AND there's an issue (drift/error)
+    return false if notify_on_first_check? && issue_detected?
+
     @old_status == "unknown"
+  end
+
+  def notify_on_first_check?
+    Rails.configuration.notifications[:notify_on_first_check] == true
+  end
+
+  def issue_detected?
+    %w[drift error].include?(@new_status)
   end
 
   def build_notification

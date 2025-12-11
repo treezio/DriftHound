@@ -221,4 +221,86 @@ class NotificationServiceTest < ActiveSupport::TestCase
 
     service.call
   end
+
+  # Tests for initial_check? behavior and notify_on_first_check configuration
+  test "does not notify on initial check (unknown to drift) by default" do
+    @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "unknown", "drift")
+
+    NotificationDelivery.expects(:deliver).never
+
+    service.call
+  end
+
+  test "does not notify on initial check (unknown to error) by default" do
+    @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "unknown", "error")
+
+    NotificationDelivery.expects(:deliver).never
+
+    service.call
+  end
+
+  test "does not notify on initial check (unknown to ok) regardless of setting" do
+    @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "unknown", "ok")
+
+    # Even with notify_on_first_check enabled, unknown -> ok should not notify
+    service.stubs(:notify_on_first_check?).returns(true)
+
+    NotificationDelivery.expects(:deliver).never
+
+    service.call
+  end
+
+  test "notifies on initial drift when notify_on_first_check is enabled" do
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "unknown", "drift")
+    service.stubs(:notify_on_first_check?).returns(true)
+
+    NotificationDelivery.expects(:deliver).once.with do |args|
+      args[:notification].event_type == :drift_detected &&
+      args[:channel] == channel
+    end
+
+    service.call
+  end
+
+  test "notifies on initial error when notify_on_first_check is enabled" do
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "unknown", "error")
+    service.stubs(:notify_on_first_check?).returns(true)
+
+    NotificationDelivery.expects(:deliver).once.with do |args|
+      args[:notification].event_type == :error_detected &&
+      args[:channel] == channel
+    end
+
+    service.call
+  end
 end
