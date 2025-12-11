@@ -89,7 +89,7 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     Notifiers::Slack.deliver(@notification, @config, @state)
   end
 
-  test "update posts new resolved message" do
+  test "update modifies the original message in place" do
     @state.update!(
       external_id: "1234567890.123456",
       external_channel_id: "C12345678",
@@ -104,11 +104,12 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     )
 
     mock_client = mock
-    mock_response = { "ts" => "1234567890.999999" }
+    mock_response = { "ts" => "1234567890.123456", "channel" => "C12345678" }
     ::Slack::Web::Client.expects(:new).with(token: "xoxb-test-token").returns(mock_client)
 
-    mock_client.expects(:chat_postMessage).with do |args|
+    mock_client.expects(:chat_update).with do |args|
       args[:channel] == "#infrastructure-alerts" &&
+      args[:ts] == "1234567890.123456" &&
       args[:attachments].is_a?(Array) &&
       args[:attachments].first[:color] == "#36A64F" &&
       args[:attachments].first[:blocks].is_a?(Array) &&
@@ -137,10 +138,10 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     )
 
     mock_client = mock
-    mock_response = { "ts" => "1234567890.999999" }
+    mock_response = { "ts" => "1234567890.123456" }
     ::Slack::Web::Client.expects(:new).returns(mock_client)
 
-    mock_client.expects(:chat_postMessage).with do |args|
+    mock_client.expects(:chat_update).with do |args|
       blocks = args[:attachments].first[:blocks]
       # The resolved section should be blocks[2]
       resolved_text = blocks[2][:text][:text]
@@ -150,7 +151,7 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     Notifiers::Slack.update(@state, resolved_notification, @config)
   end
 
-  test "update uses config channel" do
+  test "update uses external_id as ts for message update" do
     @state.update!(external_id: "1234567890.123456")
 
     resolved_notification = Notification.new(
@@ -161,11 +162,12 @@ class Notifiers::SlackTest < ActiveSupport::TestCase
     )
 
     mock_client = mock
-    mock_response = { "ts" => "1234567890.999999" }
+    mock_response = { "ts" => "1234567890.123456" }
     ::Slack::Web::Client.expects(:new).returns(mock_client)
 
-    mock_client.expects(:chat_postMessage).with do |args|
-      args[:channel] == "#infrastructure-alerts"
+    mock_client.expects(:chat_update).with do |args|
+      args[:channel] == "#infrastructure-alerts" &&
+      args[:ts] == "1234567890.123456"
     end.returns(mock_response)
 
     Notifiers::Slack.update(@state, resolved_notification, @config)

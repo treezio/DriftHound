@@ -27,10 +27,10 @@ class Notifiers::Slack < Notifiers::Base
 
       blocks = build_resolved_blocks(notification, state)
 
-      # Post a new resolved message instead of updating the original
-      # This is clearer and doesn't require chat:write permission for updating
-      client.chat_postMessage(
+      # Update the original message in place to show resolution
+      client.chat_update(
         channel: config["channel"],
+        ts: state.external_id,
         attachments: [
           {
             color: "#36A64F",  # Green for resolved

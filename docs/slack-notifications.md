@@ -16,8 +16,9 @@ DriftHound can send notifications to Slack when infrastructure drift is detected
 1. In your app settings, navigate to **"OAuth & Permissions"**
 2. Scroll to **"Scopes"** → **"Bot Token Scopes"**
 3. Add these scopes:
-   - `chat:write` - Post messages to channels
+   - `chat:write` - Post and update messages in channels
    - `chat:write.public` - Post to public channels without joining
+   - `channels:read` - View basic channel info (needed for message updates)
 
 ### 3. Install App to Workspace
 
@@ -75,7 +76,7 @@ production:
 - `drift` → `ok` = Original message updated (shows resolution time)
 - `drift` → `drift` = No notification (anti-spam)
 
-**Message updates** - When drift resolves, DriftHound posts a new resolved message showing how long the drift lasted.
+**Message updates** - When drift resolves, DriftHound updates the original Slack message in place. The message changes from red/orange to green, showing that the issue was resolved and how long it lasted. This keeps your channel clean and makes it easy to see which alerts are still active.
 
 ### First Check Behavior
 
@@ -105,6 +106,13 @@ export NOTIFY_ON_FIRST_CHECK=true
 
 **Bot can't post to private channels?**
 - Invite the bot: `/invite @DriftHound`
+
+**Resolved notifications not updating the original message?**
+- Your Slack app may be missing required scopes
+- Go to your Slack app settings → OAuth & Permissions
+- Ensure you have: `chat:write`, `chat:write.public`, and `channels:read`
+- **Reinstall the app** to your workspace after adding scopes
+- Update your `SLACK_BOT_TOKEN` with the new token
 
 **Need different channels per project?**
 - Use `--slack-channel` flag when running `drifthound-cli` for each environment
