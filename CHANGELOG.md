@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.12](https://github.com/treezio/DriftHound/compare/v0.2.11...v0.2.12) (2025-12-11)
+
+
+### Bug Fixes
+
+* Update message content for resolved state ([#54](https://github.com/treezio/DriftHound/issues/54)) ([1790dec](https://github.com/treezio/DriftHound/commit/1790dec5663a3b5f2d9077c902cce595aa498246))
+
 ## [0.2.11](https://github.com/treezio/DriftHound/compare/v0.2.10...v0.2.11) (2025-12-11)
 
 
