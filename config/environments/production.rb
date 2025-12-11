@@ -57,7 +57,8 @@ Rails.application.configure do
 
   # Use async queue adapter (in-memory, sufficient for occasional notifications)
   # Jobs are processed immediately in background threads, no separate database needed
-  config.active_job.queue_adapter = :async
+  config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

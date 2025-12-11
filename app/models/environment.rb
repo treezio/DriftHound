@@ -21,22 +21,6 @@ class Environment < ApplicationRecord
                   uniqueness: { scope: :project_id },
                   format: { with: /\A[a-z0-9_-]+\z/i, message: "only allows alphanumeric characters, dashes, and underscores" }
 
-  # Trigger notifications when status changes
-  after_update :notify_status_change, if: :saved_change_to_status?
-
-  private
-
-  def notify_status_change
-    old_status = status_before_last_save
-    new_status = status
-
-    NotificationJob.perform_later(
-      environment_id: id,
-      old_status: old_status,
-      new_status: new_status
-    )
-  end
-
   def self.find_or_create_by_key(project, key)
     project.environments.find_or_create_by(key: key) do |environment|
       environment.name = key.titleize

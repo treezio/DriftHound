@@ -12,7 +12,9 @@ class DriftCheck < ApplicationRecord
 
   before_create :assign_execution_number
   after_create :update_environment_status
+  after_create :trigger_notification
   after_create :enforce_retention_limit
+
   def assign_execution_number
     last_number = environment.drift_checks.maximum(:execution_number) || 0
     self.execution_number = last_number + 1
@@ -36,7 +38,20 @@ class DriftCheck < ApplicationRecord
   private
 
   def update_environment_status
+    old_status = environment.status
     environment.update!(status: status, last_checked_at: created_at)
+    @previous_environment_status = old_status
+  end
+
+  def trigger_notification
+    # Use the status captured before the update, or 'unknown' if this is the first check
+    old_status = @previous_environment_status || 'unknown'
+
+    NotificationJob.perform_later(
+      environment_id: environment.id,
+      old_status: old_status,
+      new_status: status
+    )
   end
 
   def enforce_retention_limit

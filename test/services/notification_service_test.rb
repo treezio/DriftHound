@@ -14,8 +14,38 @@ class NotificationServiceTest < ActiveSupport::TestCase
     service.call
   end
 
-  test "does not notify on lateral move drift to drift" do
+  test "notifies on first lateral move drift to drift when no previous notification" do
     @environment.update!(status: :drift)
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    service = NotificationService.new(@environment, "drift", "drift")
+
+    # Should notify because there's no notification state yet
+    NotificationDelivery.expects(:deliver).once
+
+    service.call
+  end
+
+  test "does not notify on lateral move drift to drift within 24 hours" do
+    @environment.update!(status: :drift)
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    # Create a notification state that was sent recently (1 hour ago)
+    state = NotificationState.create!(
+      environment: @environment,
+      channel: "slack",
+      last_notified_status: Environment.statuses[:drift],
+      metadata: { last_sent_at: 1.hour.ago.iso8601 }
+    )
+
     service = NotificationService.new(@environment, "drift", "drift")
 
     NotificationDelivery.expects(:deliver).never
@@ -23,8 +53,45 @@ class NotificationServiceTest < ActiveSupport::TestCase
     service.call
   end
 
-  test "does not notify on lateral move error to error" do
+  test "notifies on lateral move drift to drift after 24 hours" do
+    @environment.update!(status: :drift)
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    # Create a notification state that was sent more than 24 hours ago
+    state = NotificationState.create!(
+      environment: @environment,
+      channel: "slack",
+      last_notified_status: Environment.statuses[:drift],
+      metadata: { last_sent_at: 25.hours.ago.iso8601 }
+    )
+
+    service = NotificationService.new(@environment, "drift", "drift")
+
+    NotificationDelivery.expects(:deliver).once
+
+    service.call
+  end
+
+  test "does not notify on lateral move error to error within 24 hours" do
     @environment.update!(status: :error)
+    channel = @project.notification_channels.create!(
+      channel_type: "slack",
+      enabled: true,
+      config: { channel: "#alerts" }
+    )
+
+    # Create a notification state that was sent recently
+    state = NotificationState.create!(
+      environment: @environment,
+      channel: "slack",
+      last_notified_status: Environment.statuses[:error],
+      metadata: { last_sent_at: 1.hour.ago.iso8601 }
+    )
+
     service = NotificationService.new(@environment, "error", "error")
 
     NotificationDelivery.expects(:deliver).never
