@@ -155,4 +155,111 @@ class NotificationDeliveryTest < ActiveSupport::TestCase
 
     NotificationDelivery.deliver(notification: @notification, channel: @channel)
   end
+
+  # Tests for build_config - critical bug fix for token merging
+  test "build_config merges global slack token when channel config lacks token" do
+    # Channel config without token (as created by seeds)
+    @channel.update!(config: { "channel" => "#test-alerts" })
+
+    delivery = NotificationDelivery.new(@notification, @channel)
+    config = delivery.send(:build_config)
+
+    # Should have merged the global token
+    assert_equal Rails.configuration.notifications[:slack][:token], config["token"]
+    assert_equal "#test-alerts", config["channel"]
+  end
+
+  test "build_config preserves existing token in channel config" do
+    # Channel config with its own token
+    custom_token = "xoxb-custom-token"
+    @channel.update!(config: { "channel" => "#test-alerts", "token" => custom_token })
+
+    delivery = NotificationDelivery.new(@notification, @channel)
+    config = delivery.send(:build_config)
+
+    # Should keep the custom token, not replace it
+    assert_equal custom_token, config["token"]
+    assert_equal "#test-alerts", config["channel"]
+  end
+
+  test "build_config duplicates channel config to avoid mutation" do
+    original_config = { "channel" => "#test-alerts" }
+    @channel.update!(config: original_config)
+
+    delivery = NotificationDelivery.new(@notification, @channel)
+    config = delivery.send(:build_config)
+
+    # Modify the returned config
+    config["token"] = "new-token"
+    config["extra"] = "value"
+
+    # Original channel config should be unchanged
+    assert_nil @channel.config["token"]
+    assert_nil @channel.config["extra"]
+    assert_equal "#test-alerts", @channel.config["channel"]
+  end
+
+  test "build_config only merges token for slack channels" do
+    # Create a different channel type (hypothetical email)
+    email_channel = @project.notification_channels.create!(
+      channel_type: "email",
+      enabled: true,
+      config: { "address" => "test@example.com" }
+    )
+
+    delivery = NotificationDelivery.new(@notification, email_channel)
+    config = delivery.send(:build_config)
+
+    # Should not have added a token for non-slack channels
+    assert_nil config["token"]
+    assert_equal "test@example.com", config["address"]
+  end
+
+  test "deliver passes merged config with token to adapter" do
+    # Channel without token (bug scenario)
+    @channel.update!(config: { "channel" => "#alerts" })
+
+    mock_adapter = mock
+    # Verify that deliver receives config WITH the token merged in
+    mock_adapter.expects(:deliver).with(
+      @notification,
+      has_entries("channel" => "#alerts", "token" => Rails.configuration.notifications[:slack][:token]),
+      instance_of(NotificationState)
+    )
+
+    delivery = NotificationDelivery.new(@notification, @channel)
+    delivery.send(:instance_variable_set, :@adapter_class, mock_adapter)
+    delivery.deliver
+  end
+
+  test "deliver passes merged config with token to update method for resolved notifications" do
+    # Create existing notification state (error was sent)
+    @environment.notification_states.create!(
+      channel: "slack",
+      external_id: "1234567890.123456",
+      last_notified_status: Environment.statuses["error"]
+    )
+
+    # Channel without token (bug scenario that was failing)
+    @channel.update!(config: { "channel" => "#alerts" })
+
+    resolved_notification = Notification.new(
+      environment: @environment,
+      event_type: :error_resolved,
+      old_status: "error",
+      new_status: "ok"
+    )
+
+    mock_adapter = mock
+    # Verify that update receives config WITH the token merged in
+    mock_adapter.expects(:update).with(
+      instance_of(NotificationState),
+      resolved_notification,
+      has_entries("channel" => "#alerts", "token" => Rails.configuration.notifications[:slack][:token])
+    )
+
+    delivery = NotificationDelivery.new(resolved_notification, @channel)
+    delivery.send(:instance_variable_set, :@adapter_class, mock_adapter)
+    delivery.deliver
+  end
 end
