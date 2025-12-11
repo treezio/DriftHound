@@ -75,7 +75,26 @@ production:
 - `drift` → `ok` = Original message updated (shows resolution time)
 - `drift` → `drift` = No notification (anti-spam)
 
-**Message updates** - When drift resolves, DriftHound updates the original Slack message instead of posting a new one, showing how long the drift lasted.
+**Message updates** - When drift resolves, DriftHound posts a new resolved message showing how long the drift lasted.
+
+### First Check Behavior
+
+By default, the **first drift check** for a new environment does not trigger a notification. This is because:
+- New environments start with `unknown` status
+- The first check establishes a baseline
+- This prevents notification spam when onboarding many environments
+
+**To receive notifications on first drift/error detection:**
+
+```bash
+export NOTIFY_ON_FIRST_CHECK=true
+```
+
+| First Check Result | `NOTIFY_ON_FIRST_CHECK=false` (default) | `NOTIFY_ON_FIRST_CHECK=true` |
+|-------------------|----------------------------------------|------------------------------|
+| `unknown → ok`    | No notification                        | No notification              |
+| `unknown → drift` | No notification (baseline)             | Drift Detected               |
+| `unknown → error` | No notification (baseline)             | Error Detected               |
 
 ## Troubleshooting
 
