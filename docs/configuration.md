@@ -197,6 +197,35 @@ SLACK_DEFAULT_CHANNEL=#infra-alerts
 
 **Note:** This can be overridden per-environment via the API or CLI using the `--slack-channel` flag.
 
+### NOTIFY_ON_FIRST_CHECK
+
+Controls whether notifications are sent on the first drift check for new environments.
+
+**Required:** No
+**Default:** `false`
+**Example:**
+
+```bash
+NOTIFY_ON_FIRST_CHECK=true
+```
+
+**Behavior:**
+
+By default, new environments start with `unknown` status. The first drift check establishes a baseline and does not trigger notifications. This prevents notification spam when onboarding many environments.
+
+When set to `true`, DriftHound will send notifications immediately if the first check detects drift or an error:
+
+| First Check Result | `false` (default) | `true` |
+|-------------------|-------------------|--------|
+| `unknown → ok`    | No notification   | No notification |
+| `unknown → drift` | No notification   | Drift Detected |
+| `unknown → error` | No notification   | Error Detected |
+
+**Use cases for enabling:**
+- You want immediate alerts when adding new infrastructure monitoring
+- Your environments should never have drift on first check
+- You prefer proactive alerting over baseline establishment
+
 ### Notification Configuration File
 
 Alternatively, you can configure notifications in [config/notifications.yml](../config/notifications.yml). Environment variables take precedence and are interpolated in the YAML file.
@@ -292,6 +321,7 @@ DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password
 SLACK_NOTIFICATIONS_ENABLED=true
 SLACK_BOT_TOKEN=xoxb-your-slack-bot-token
 SLACK_DEFAULT_CHANNEL=#infrastructure-drift
+NOTIFY_ON_FIRST_CHECK=false
 
 # Web Server
 PORT=3000
