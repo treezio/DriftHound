@@ -29,23 +29,16 @@ class Notifiers::Slack < Notifiers::Base
 
       # Post a new resolved message instead of updating the original
       # This is clearer and doesn't require chat:write permission for updating
-      begin
-        Rails.logger.info("Sending resolved notification to channel: #{config["channel"]}")
-        response = client.chat_postMessage(
-          channel: config["channel"],
-          attachments: [
-            {
-              color: "#36A64F",  # Green for resolved
-              blocks: blocks,
-              fallback: "#{notification.icon} #{notification.title}"
-            }
-          ]
-        )
-        Rails.logger.info("Resolved notification sent successfully: #{response["ts"]}")
-      rescue => e
-        Rails.logger.error("Failed to send resolved notification: #{e.class} - #{e.message}")
-        raise
-      end
+      client.chat_postMessage(
+        channel: config["channel"],
+        attachments: [
+          {
+            color: "#36A64F",  # Green for resolved
+            blocks: blocks,
+            fallback: "#{notification.icon} #{notification.title}"
+          }
+        ]
+      )
 
       clear_tracking(state)
     end

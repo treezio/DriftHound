@@ -17,11 +17,12 @@ class NotificationDelivery
     return unless @adapter_class
 
     notification_state = find_or_create_state
+    config = build_config
 
     if @notification.should_update_existing? && notification_state.external_id.present?
-      @adapter_class.update(notification_state, @notification, @channel.config)
+      @adapter_class.update(notification_state, @notification, config)
     else
-      @adapter_class.deliver(@notification, @channel.config, notification_state)
+      @adapter_class.deliver(@notification, config, notification_state)
     end
   rescue StandardError => e
     Rails.logger.error("Notification delivery failed: #{e.message}")
@@ -46,5 +47,17 @@ class NotificationDelivery
       environment: @notification.environment,
       channel: @channel.channel_type
     )
+  end
+
+  def build_config
+    config = @channel.config.dup
+
+    # For Slack, always merge in the global token if not already present
+    if @channel.channel_type == "slack"
+      global_slack_config = Rails.application.config.notifications[:slack]
+      config["token"] ||= global_slack_config[:token]
+    end
+
+    config
   end
 end
