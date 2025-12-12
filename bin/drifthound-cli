@@ -32,8 +32,8 @@ abort('Missing --api-url') unless opts[:api_url]
 
 dir = opts[:dir] || Dir.pwd
 cmd = case opts[:tool]
-when 'terraform', 'opentofu' then [ opts[:tool], 'plan', '-no-color', '-detailed-exitcode' ]
-when 'terragrunt' then [ 'terragrunt', 'plan', '-no-color', '-detailed-exitcode' ]
+when 'terraform', 'opentofu' then [ opts[:tool], 'plan', '-no-color', '-detailed-exitcode', '-lock=false' ]
+when 'terragrunt' then [ 'terragrunt', 'plan', '-no-color', '-detailed-exitcode', '-lock=false' ]
 else abort('Unknown tool')
 end
 
@@ -42,7 +42,7 @@ puts "Running: #{cmd.join(' ')} in #{dir}"
 start_time = Time.now
 begin
   output = IO.popen(cmd, chdir: dir, err: [ :child, :out ]) { |io| io.read }
-  output = output.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+  output = output.force_encoding('UTF-8').scrub('?')
   exit_code = $?.exitstatus
 rescue => e
   puts "Error running command: #{e.message}"
