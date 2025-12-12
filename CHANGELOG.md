@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.13](https://github.com/treezio/DriftHound/compare/v0.2.12...v0.2.13) (2025-12-12)
+
+
+### Bug Fixes
+
+* minor improvements and disable lock ([9616416](https://github.com/treezio/DriftHound/commit/9616416aa40cffa1592ae54db2abaf2622a19449))
+* use -detailed-exitcode ([b245ea4](https://github.com/treezio/DriftHound/commit/b245ea4316a5787ab04e4843333c9b73fdd0482f))
+
 ## [0.2.12](https://github.com/treezio/DriftHound/compare/v0.2.11...v0.2.12) (2025-12-11)
 
 
