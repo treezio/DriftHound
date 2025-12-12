@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+# encoding: utf-8
+
 # drifthound-cli: Run Terraform/Terragrunt/OpenTofu, parse drift, and send to DriftHound API
 require 'json'
 require 'net/http'
@@ -29,16 +32,17 @@ abort('Missing --api-url') unless opts[:api_url]
 
 dir = opts[:dir] || Dir.pwd
 cmd = case opts[:tool]
-      when 'terraform', 'opentofu' then [opts[:tool], 'plan', '-no-color', '-detailed-exitcode']
-      when 'terragrunt' then ['terragrunt', 'plan', '-no-color', '-detailed-exitcode']
-      else abort('Unknown tool')
-      end
+when 'terraform', 'opentofu' then [ opts[:tool], 'plan', '-no-color', '-detailed-exitcode' ]
+when 'terragrunt' then [ 'terragrunt', 'plan', '-no-color', '-detailed-exitcode' ]
+else abort('Unknown tool')
+end
 
 
 puts "Running: #{cmd.join(' ')} in #{dir}"
 start_time = Time.now
 begin
-  output = IO.popen(cmd, chdir: dir, err: [:child, :out]) { |io| io.read }
+  output = IO.popen(cmd, chdir: dir, err: [ :child, :out ]) { |io| io.read }
+  output = output.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
   exit_code = $?.exitstatus
 rescue => e
   puts "Error running command: #{e.message}"
