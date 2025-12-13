@@ -4,6 +4,7 @@ class ProjectsController < ApplicationController
   def show
     @project = Project.find_by!(key: params[:key])
     @environments = @project.environments.includes(:drift_checks).order(:name)
+    @slack_channel = @project.notification_channels.for_type("slack").enabled.first
   end
 
   private
