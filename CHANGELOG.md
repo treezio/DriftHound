@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/treezio/DriftHound/compare/v0.2.12...v0.3.0) (2025-12-13)
+
+
+### Features
+
+* Enhance project and environment information ([#57](https://github.com/treezio/DriftHound/issues/57)) ([4c656f2](https://github.com/treezio/DriftHound/commit/4c656f2332dc246518a4a03f453ea53ac8cf25f9))
+* Improve UX looks and long names handling ([#59](https://github.com/treezio/DriftHound/issues/59)) ([a130288](https://github.com/treezio/DriftHound/commit/a13028840e6656b80ef808c1b9b06583ea8378ab))
+
+
+### Bug Fixes
+
+* minor improvements and disable lock ([9616416](https://github.com/treezio/DriftHound/commit/9616416aa40cffa1592ae54db2abaf2622a19449))
+* use -detailed-exitcode ([b245ea4](https://github.com/treezio/DriftHound/commit/b245ea4316a5787ab04e4843333c9b73fdd0482f))
+
 ## [0.2.12](https://github.com/treezio/DriftHound/compare/v0.2.11...v0.2.12) (2025-12-11)
 
 
