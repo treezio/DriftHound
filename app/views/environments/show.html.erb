@@ -6,25 +6,64 @@
     <%= link_to "← Back to #{@project.name}", project_path(@project.key), class: "back-link" %>
   </header>
 
-  <section class="project-summary project-summary--horizontal">
-    <div class="project-main-info" style="display: flex; align-items: center; gap: 0.75em; font-size: 1.1em;">
-      <% last_status = @environment.last_check_status %>
-      <span class="status-indicator status-indicator--<%= last_status %>"></span>
-      <span style="font-weight: 600;"><%= @project.name %></span>
-      <span style="color: #bbb; font-size: 1.2em;">&bull;</span>
-      <span style="font-weight: 600;"><%= @environment.name %></span>
-      <span style="color: #bbb; font-size: 1.2em;">&bull;</span>
-      <span class="status-pill status-pill--<%= last_status %>"><%= last_status.upcase %></span>
+  <section class="project-summary-card">
+    <div class="summary-top">
+      <div class="main-info">
+        <% last_status = @environment.last_check_status %>
+        <span class="status-indicator status-indicator--<%= last_status %>"></span>
+        <h1><%= @project.name %></h1>
+        <span class="env-separator">&bull;</span>
+        <span class="environment-title"><%= @environment.name %></span>
+        <span class="env-separator">&bull;</span>
+        <span class="status-pill status-pill--<%= last_status %>"><%= last_status.upcase %></span>
+      </div>
+      <div>
+        <% if @environment.last_checked_at %>
+          <span class="last-check-time">🕐 Last checked <%= time_ago_in_words(@environment.last_checked_at) %> ago</span>
+        <% else %>
+          <span class="last-check-time">🕐 Never checked</span>
+        <% end %>
+      </div>
     </div>
-    <div class="project-meta-info">
-      <% if @environment.last_checked_at %>
-        <span class="last-check-time last-check-highlight" title="<%= @environment.last_checked_at.strftime('%Y-%m-%d %H:%M:%S') %>">
-          Last checked <%= time_ago_in_words(@environment.last_checked_at) %> ago
+    <% if @project.repository.present? || @environment.directory.present? %>
+      <div class="summary-bottom">
+        <span class="project-detail-item">
+          <%
+            repo_icon = case @project.repository
+            when /github\.com/ then "github"
+            when /gitlab\.com/ then "gitlab"
+            when /bitbucket\.org/ then "bitbucket"
+            else "generic"
+            end
+          %>
+          <% if @project.repository.present? %>
+            <span class="repo-icon repo-icon--<%= repo_icon %>"></span>
+            <% if @environment.directory.present? %>
+              <%
+                # Build full path URL for tree view
+                repo_url = @project.repository.sub(/\.git$/, '')
+                branch = @project.branch || "main"
+                # Build tree path for GitHub/GitLab/Bitbucket
+                tree_path = case @project.repository
+                when /github\.com/ then "tree/#{branch}/#{@environment.directory}"
+                when /gitlab\.com/ then "-/tree/#{branch}/#{@environment.directory}"
+                when /bitbucket\.org/ then "src/#{branch}/#{@environment.directory}"
+                else @environment.directory
+                end
+                full_url = "#{repo_url}/#{tree_path}"
+                display_text = "#{@project.repository.sub(%r{^https?://}, '')}/#{@environment.directory}"
+              %>
+              <%= link_to display_text, full_url, target: "_blank", rel: "noopener noreferrer" %>
+            <% else %>
+              <%= link_to @project.repository.sub(%r{^https?://}, ''), @project.repository, target: "_blank", rel: "noopener noreferrer" %>
+            <% end %>
+          <% elsif @environment.directory.present? %>
+            <span class="directory-icon">📁</span>
+            <span class="directory-path"><%= @environment.directory %></span>
+          <% end %>
         </span>
-      <% else %>
-        <span class="last-check-time last-check-highlight">Never checked</span>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   </section>
 
   <section class="check-history">

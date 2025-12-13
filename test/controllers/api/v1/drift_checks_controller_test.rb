@@ -306,6 +306,168 @@ class Api::V1::DriftChecksControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
   end
 
+  test "stores repository on project when provided" do
+    post api_v1_environment_checks_path("repo-test", "production"),
+      params: {
+        status: "ok",
+        repository: "https://github.com/myorg/infrastructure"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project = Project.find_by(key: "repo-test")
+    assert_equal "https://github.com/myorg/infrastructure", project.repository
+  end
+
+  test "stores directory on environment when provided" do
+    post api_v1_environment_checks_path("dir-test", "production"),
+      params: {
+        status: "ok",
+        directory: "infra/terraform/prod"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project = Project.find_by(key: "dir-test")
+    environment = project.environments.find_by(key: "production")
+    assert_equal "infra/terraform/prod", environment.directory
+  end
+
+  test "does not overwrite existing repository on project" do
+    project = Project.create!(name: "Existing", key: "existing-repo", repository: "https://github.com/old/repo")
+
+    post api_v1_environment_checks_path("existing-repo", "production"),
+      params: {
+        status: "ok",
+        repository: "https://github.com/new/repo"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project.reload
+    # Should keep the original value, not overwrite with new one
+    assert_equal "https://github.com/old/repo", project.repository
+  end
+
+  test "does not overwrite existing directory on environment" do
+    project = Project.create!(name: "Existing", key: "existing-dir")
+    environment = project.environments.create!(name: "Production", key: "production", directory: "old/path")
+
+    post api_v1_environment_checks_path("existing-dir", "production"),
+      params: {
+        status: "ok",
+        directory: "new/path"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    environment.reload
+    # Should keep the original value, not overwrite with new one
+    assert_equal "old/path", environment.directory
+  end
+
+  test "stores both repository and directory when provided" do
+    post api_v1_environment_checks_path("full-test", "staging"),
+      params: {
+        status: "drift",
+        add_count: 1,
+        repository: "https://gitlab.com/team/infra",
+        directory: "environments/staging"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project = Project.find_by(key: "full-test")
+    environment = project.environments.find_by(key: "staging")
+
+    assert_equal "https://gitlab.com/team/infra", project.repository
+    assert_equal "environments/staging", environment.directory
+  end
+
+  test "does not change repository when not provided" do
+    project = Project.create!(name: "Keep Repo", key: "keep-repo", repository: "https://github.com/keep/this")
+
+    post api_v1_environment_checks_path("keep-repo", "production"),
+      params: { status: "ok" },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project.reload
+    assert_equal "https://github.com/keep/this", project.repository
+  end
+
+  test "does not change directory when not provided" do
+    project = Project.create!(name: "Keep Dir", key: "keep-dir")
+    environment = project.environments.create!(name: "Production", key: "production", directory: "keep/this/path")
+
+    post api_v1_environment_checks_path("keep-dir", "production"),
+      params: { status: "ok" },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    environment.reload
+    assert_equal "keep/this/path", environment.directory
+  end
+
+  test "stores branch on project when provided" do
+    post api_v1_environment_checks_path("branch-test", "production"),
+      params: {
+        status: "ok",
+        branch: "master"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project = Project.find_by(key: "branch-test")
+    assert_equal "master", project.branch
+  end
+
+  test "does not overwrite existing branch on project" do
+    project = Project.create!(name: "Existing", key: "existing-branch", branch: "develop")
+
+    post api_v1_environment_checks_path("existing-branch", "production"),
+      params: {
+        status: "ok",
+        branch: "master"
+      },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project.reload
+    # Should keep the original value, not overwrite with new one
+    assert_equal "develop", project.branch
+  end
+
+  test "defaults branch to main when not provided" do
+    post api_v1_environment_checks_path("default-branch", "production"),
+      params: { status: "ok" },
+      headers: @auth_header,
+      as: :json
+
+    assert_response :created
+
+    project = Project.find_by(key: "default-branch")
+    assert_equal "main", project.branch
+  end
+
   test "falls back to global config for missing notification settings" do
     # Save original config
     original_config = Rails.application.config.notifications

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_30_120119) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_13_111336) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_30_120119) do
 
   create_table "environments", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "directory"
     t.string "key", null: false
     t.datetime "last_checked_at"
     t.string "name", null: false
@@ -77,9 +78,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_30_120119) do
   end
 
   create_table "projects", force: :cascade do |t|
+    t.string "branch", default: "main"
     t.datetime "created_at", null: false
     t.string "key", null: false
     t.string "name", null: false
+    t.string "repository"
     t.datetime "updated_at", null: false
     t.index ["key"], name: "index_projects_on_key", unique: true
   end
