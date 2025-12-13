@@ -6,18 +6,36 @@
     <%= link_to "← Back to Dashboard", root_path, class: "back-link" %>
   </header>
 
-  <section class="project-summary project-summary--horizontal">
-    <div class="project-main-info">
-      <h1><%= @project.name %></h1>
-      <span class="project-key-tag"><%= @project.key %></span>
+  <section class="project-summary-card">
+    <div class="summary-top">
+      <div class="main-info">
+        <span class="project-emoji">📦</span>
+        <h1><%= @project.name %></h1>
+      </div>
+      <div>
+        <% if @project.last_checked_at %>
+          <span class="last-check-time">🕐 Last checked <%= time_ago_in_words(@project.last_checked_at) %> ago</span>
+        <% else %>
+          <span class="last-check-time">🕐 Never checked</span>
+        <% end %>
+      </div>
     </div>
-    <div class="project-meta-info">
-      <% if @project.last_checked_at %>
-        <span class="last-check-time">Last checked <%= time_ago_in_words(@project.last_checked_at) %> ago</span>
-      <% else %>
-        <span class="last-check-time">Never checked</span>
-      <% end %>
-    </div>
+    <% if @project.repository.present? %>
+      <div class="summary-bottom">
+        <span class="project-detail-item">
+          <%
+            repo_icon = case @project.repository
+            when /github\.com/ then "github"
+            when /gitlab\.com/ then "gitlab"
+            when /bitbucket\.org/ then "bitbucket"
+            else "generic"
+            end
+          %>
+          <span class="repo-icon repo-icon--<%= repo_icon %>"></span>
+          <%= link_to @project.repository.sub(%r{^https?://}, ''), @project.repository, target: "_blank", rel: "noopener noreferrer" %>
+        </span>
+      </div>
+    <% end %>
   </section>
 
   <section class="environments-list">
