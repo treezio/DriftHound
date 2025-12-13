@@ -1,7 +1,7 @@
 <div class="project-detail">
   <header class="project-header">
-    <div class="breadcrumb">
-      <%= link_to "DriftHound", root_path %> › <span><%= @project.name %></span>
+    <div class="breadcrumb" title="<%= @project.name %>">
+      <%= link_to "DriftHound", root_path %><span class="breadcrumb-sep"> › </span><span title="<%= @project.name %>"><%= @project.name %></span>
     </div>
     <%= link_to "← Back to Dashboard", root_path, class: "back-link" %>
   </header>
@@ -10,7 +10,7 @@
     <div class="summary-top">
       <div class="main-info">
         <span class="project-emoji">📦</span>
-        <h1><%= @project.name %></h1>
+        <h1 title="<%= @project.name %>"><%= @project.name %></h1>
       </div>
       <div>
         <% if @project.last_checked_at %>
@@ -52,11 +52,10 @@
           <span>Status</span>
           <span>Environment</span>
           <span>Summary</span>
-          <span></span>
-          <span>Last Check</span>
+          <span style="text-align: right;">Last Check</span>
           <span></span>
         </div>
-        
+
         <% @environments.each do |environment| %>
           <%= link_to project_environment_path(@project.key, environment.key), class: "environment-row" do %>
             <span class="col-status">
@@ -64,7 +63,7 @@
               <span class="status-text status-text--<%= environment.status %>"><%= environment.status.upcase %></span>
             </span>
             <span class="col-name">
-              <span class="environment-name"><%= environment.name %></span>
+              <span class="environment-name" title="<%= environment.name %>"><%= environment.name %></span>
             </span>
             <span class="col-summary oneline">
               <% last_check = environment.drift_checks.order(created_at: :desc).first %>
@@ -84,7 +83,6 @@
                 —
               <% end %>
             </span>
-            <span></span>
             <span class="col-time">
               <% if environment.last_checked_at %>
                 <%= time_ago_in_words(environment.last_checked_at) %> ago

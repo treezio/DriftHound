@@ -1,9 +1,9 @@
 <div class="environment-detail">
   <header class="project-header">
-    <div class="breadcrumb">
-      <%= link_to "DriftHound", root_path %> › <%= link_to @project.name, project_path(@project.key) %> › <span><%= @environment.name %></span>
+    <div class="breadcrumb" title="<%= @project.name %> › <%= @environment.name %>">
+      <%= link_to "DriftHound", root_path %><span class="breadcrumb-sep"> › </span><%= link_to @project.name, project_path(@project.key), title: @project.name %><span class="breadcrumb-sep"> › </span><span title="<%= @environment.name %>"><%= @environment.name %></span>
     </div>
-    <%= link_to "← Back to #{@project.name}", project_path(@project.key), class: "back-link" %>
+    <%= link_to "← Back to #{@project.name}", project_path(@project.key), class: "back-link", title: "Back to #{@project.name}" %>
   </header>
 
   <section class="project-summary-card">
@@ -11,9 +11,9 @@
       <div class="main-info">
         <% last_status = @environment.last_check_status %>
         <span class="status-indicator status-indicator--<%= last_status %>"></span>
-        <h1><%= @project.name %></h1>
+        <h1 title="<%= @project.name %>"><%= @project.name %></h1>
         <span class="env-separator">&bull;</span>
-        <span class="environment-title"><%= @environment.name %></span>
+        <span class="environment-title" title="<%= @environment.name %>"><%= @environment.name %></span>
         <span class="env-separator">&bull;</span>
         <span class="status-pill status-pill--<%= last_status %>"><%= last_status.upcase %></span>
       </div>
@@ -75,19 +75,19 @@
     <% else %>
       <div class="checks-table">
         <div class="checks-header">
-          <span style="text-align:center; padding-right:0.75em;">#</span>
-          <span style="padding-left:0.25em;">Status</span>
+          <span style="text-align: center;">#</span>
+          <span>Status</span>
           <span>Summary</span>
           <span>Duration</span>
           <span>Execution Time</span>
-          <span style="text-align:right;">Details</span>
+          <span style="text-align: right;">Details</span>
         </div>
         <% total_checks = @drift_checks.size %>
         <% @drift_checks.each_with_index do |check, idx| %>
           <div class="check-row" data-controller="expandable">
-            <div class="check-summary" style="display: grid; grid-template-columns: 40px 1fr 2fr 1fr 1fr 100px; align-items: center; gap: 0.5em;" data-action="click->expandable#toggle">
-                <span class="col-check-number" style="text-align:center; font-weight:600; color:#888;">
-                  <span class="check-number-badge"><%= check.execution_number %></span>
+            <div class="check-summary" data-action="click->expandable#toggle">
+              <span class="col-check-number">
+                <span class="check-number-badge"><%= check.execution_number %></span>
               </span>
               <span class="col-status">
                 <span class="status-indicator status-indicator--<%= check.status %>"></span>

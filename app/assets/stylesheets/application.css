@@ -1,6 +1,7 @@
 .checks-header {
   display: grid;
-  grid-template-columns: 40px 1fr 2fr 1fr 1fr 100px;
+  grid-template-columns: 40px 90px minmax(100px, 1fr) auto auto auto;
+  column-gap: 2.5rem;
   padding: 0.75rem 1.5rem;
   background-color: #e5e7eb;
   font-size: 0.75rem;
@@ -8,19 +9,19 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
+  align-items: center;
 }
 .check-summary {
   display: grid;
-  grid-template-columns: 40px 1fr 2fr 1fr 1fr 100px;
+  grid-template-columns: 40px 90px minmax(100px, 1fr) auto auto auto;
+  column-gap: 2.5rem;
   padding: 1rem 1.5rem;
   align-items: center;
   cursor: pointer;
   transition: background-color 0.15s;
-  gap: 0.5em;
 }
 .col-check-number {
-  min-width: 40px;
-  max-width: 40px;
+  text-align: center;
   justify-content: center;
 }
 .check-number-badge {
@@ -88,9 +89,20 @@
   cursor: pointer;
 }
 /* ===== Project/Environment Dashboard Table ===== */
+.projects-table {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto auto;
+  column-gap: 2rem;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
 .project-envs-header {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1.5fr;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   padding: 0.75rem 1.5rem;
   background-color: #e5e7eb;
   font-size: 0.75rem;
@@ -102,7 +114,8 @@
 
 .project-env-row {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 1.5fr;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   align-items: center;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
@@ -116,8 +129,26 @@
 }
 
 .project-env-row:hover {
-  background-color: #e5e7eb;
+  background-color: #f9fafb;
   text-decoration: none;
+}
+
+/* Handle long text in dashboard table */
+.col-project,
+.col-environment {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.col-status {
+  white-space: nowrap;
+}
+
+.col-time {
+  white-space: nowrap;
+  text-align: right;
 }
 /*
  * This is a manifest file that'll be compiled into application.css.
@@ -262,12 +293,12 @@ h1, h2, h3 {
   margin-bottom: 1rem;
 }
 
-.projects-table {
-  background: var(--color-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+.projects-list {
+  overflow-x: auto;
+  padding: 0.25rem;
+  margin: -0.25rem;
 }
+
 
 .project-row {
   display: grid;
@@ -353,6 +384,7 @@ h1, h2, h3 {
   width: 12px;
   height: 12px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .status-indicator--large {
@@ -450,22 +482,60 @@ h1, h2, h3 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  gap: 1rem;
+  overflow: hidden;
 }
 
 .breadcrumb {
-  font-size: 1.25rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1;
+  max-width: 70%;
 }
 
 .breadcrumb a {
   color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.breadcrumb a:first-child {
+  flex-shrink: 0;
+  max-width: none;
 }
 
 .breadcrumb span {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.breadcrumb-sep {
+  flex-shrink: 0;
+  font-weight: normal;
+  max-width: none;
+  overflow: visible;
 }
 
 .back-link {
   font-size: 0.875rem;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: min(350px, calc(100vw - 6rem));
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .project-summary-card {
@@ -480,11 +550,14 @@ h1, h2, h3 {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
+  gap: 1rem;
+  overflow: hidden;
 }
 
 .project-summary-card .summary-bottom {
   position: relative;
   padding: 1rem 1.5rem;
+  overflow: hidden;
 }
 
 .project-summary-card .summary-bottom::before {
@@ -502,11 +575,18 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
 }
 
 .project-summary-card .main-info h1 {
   margin: 0;
   font-size: 1.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
 .project-emoji {
@@ -522,11 +602,18 @@ h1, h2, h3 {
 .environment-title {
   font-size: 1.25rem;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex-shrink: 1;
+  max-width: 250px;
 }
 
 .env-separator {
   color: #bbb;
   font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 .directory-icon {
@@ -548,6 +635,8 @@ h1, h2, h3 {
   gap: 0.75rem;
   font-size: 0.9rem;
   color: var(--color-text-muted);
+  max-width: 100%;
+  min-width: 0;
 }
 
 .project-detail-item a {
@@ -557,6 +646,10 @@ h1, h2, h3 {
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(600px, calc(100vw - 6rem));
 }
 
 .project-detail-item a:hover {
@@ -572,6 +665,7 @@ h1, h2, h3 {
   background-repeat: no-repeat;
   background-position: center;
   opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .repo-icon--github {
@@ -609,6 +703,8 @@ h1, h2, h3 {
   padding: 3px 8px;
   border-radius: 10px;
   line-height: 1;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .status-pill--ok {
@@ -667,9 +763,17 @@ h1, h2, h3 {
 .last-check-time {
   font-size: 0.875rem;
   color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ===== Check History ===== */
+.check-history {
+  overflow-x: auto;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+
 .check-history h2 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
@@ -701,7 +805,8 @@ h1, h2, h3 {
 
 .check-summary {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 100px;
+  grid-template-columns: 40px 90px minmax(100px, 1fr) auto auto auto;
+  column-gap: 2.5rem;
   padding: 1rem 1.5rem;
   align-items: center;
   cursor: pointer;
@@ -728,6 +833,11 @@ h1, h2, h3 {
 .col-summary, .col-duration, .col-time {
   font-size: 0.875rem;
   color: var(--color-text-muted);
+  min-width: 0;
+}
+
+.environment-row .col-time {
+  text-align: right;
 }
 
 .oneline {
@@ -789,6 +899,12 @@ h1, h2, h3 {
 }
 
 /* ===== Environments List ===== */
+.environments-list {
+  overflow-x: auto;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+
 .environments-list h2 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
@@ -805,8 +921,9 @@ h1, h2, h3 {
 
 .environments-header {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 2.5fr 1fr 1fr 40px;
-  /* Status | Environment | Summary (wider) | (spacer) | Last Check | Arrow */
+  grid-template-columns: 100px minmax(150px, 300px) 1fr 120px 40px;
+  /* Status | Environment | Summary | Last Check | Arrow */
+  column-gap: 1.5rem;
   padding: 0.75rem 1.5rem;
   background-color: #e5e7eb;
   font-size: 0.75rem;
@@ -818,8 +935,9 @@ h1, h2, h3 {
 
 .environment-row {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 2.5fr 1fr 1fr 40px;
-  /* Status | Environment | Summary (wider) | (spacer) | Last Check | Arrow */
+  grid-template-columns: 100px minmax(150px, 300px) 1fr 120px 40px;
+  /* Status | Environment | Summary | Last Check | Arrow */
+  column-gap: 1.5rem;
   padding: 1rem 1.5rem;
   align-items: center;
   border-bottom: 1px solid var(--color-border);
@@ -833,17 +951,22 @@ h1, h2, h3 {
 }
 
 .environment-row:hover {
-  background-color: var(--color-bg);
+  background-color: #f9fafb;
   text-decoration: none;
 }
 
 .col-name {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .environment-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .environment-key {

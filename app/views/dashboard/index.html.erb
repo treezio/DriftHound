@@ -42,104 +42,93 @@
       <span class="filter-search">
         <span class="filter-icon">🔍</span>
         <input id="name-filter" type="text" placeholder="Search projects or environments…" class="filter-input" data-dashboard-filter-target="nameFilter">
+        <button id="clear-filters" class="filter-clear" title="Clear filters" style="display:none;" data-dashboard-filter-target="clearBtn">✕</button>
       </span>
-      <button id="clear-filters" class="filter-clear" title="Clear filters" style="display:none;" data-dashboard-filter-target="clearBtn">✕</button>
     </div>
     <style>
     .dashboard-filter-bar {
       display: flex;
       align-items: center;
       gap: 1rem;
-      background: #f3f4f6;
-      border-radius: 2em;
-      padding: 0.5em 1.5em;
+      background: var(--color-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 1rem 1.5rem;
       margin-bottom: 1.5em;
-      box-shadow: 0 2px 8px 0 #0001;
-      flex-wrap: wrap;
-      position: relative;
-      padding-right: 3.2em;
     }
     .filter-pill {
-      border: none;
-      background: #fff;
-      border-radius: 2em;
-      padding: 0.4em 2.2em 0.4em 1.2em;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 6px;
+      padding: 0 2.5em 0 0.75em;
       font-size: 1em;
-      box-shadow: 0 1px 4px 0 #0001;
+      height: 2.5em;
+      line-height: 2.5em;
       outline: none;
-      transition: box-shadow 0.15s;
+      transition: border-color 0.15s;
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      position: relative;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%236b7280" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 0.75em center;
+      background-size: 1em;
+      overflow: visible;
     }
     .filter-pill::-ms-expand {
       display: none;
     }
-    .filter-pill {
-      background-image: url('data:image/svg+xml;utf8,<svg fill="%236b7280" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06z"/></svg>');
-      background-repeat: no-repeat;
-      background-position: right 1.1em center;
-      background-size: 1em;
-    }
-    .filter-pill:focus, .filter-pill[style*="background"] {
-      box-shadow: 0 0 0 2px #2563eb55;
-      background: #e0e7ff;
+    .filter-pill:focus {
+      border-color: #2563eb;
     }
     .filter-sep {
       width: 1px;
-      height: 2em;
+      height: 1.5em;
       background: #e5e7eb;
-      margin: 0 0.5em;
     }
     .filter-search {
       display: flex;
       align-items: center;
-      background: #fff;
-      border-radius: 2em;
-      padding: 0.2em 1em;
-      box-shadow: 0 1px 4px 0 #0001;
-      flex: 1 1 350px;
-      min-width: 300px;
-      max-width: 600px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0 0.75em;
+      height: 2.5em;
+      flex: 1;
+      min-width: 0;
     }
     .filter-icon {
-      font-size: 1.1em;
+      font-size: 1em;
       margin-right: 0.5em;
-      color: #888;
+      color: #9ca3af;
+      flex-shrink: 0;
     }
     .filter-input {
       border: none;
       background: transparent;
       outline: none;
       font-size: 1em;
-      min-width: 250px;
+      min-width: 0;
       width: 100%;
-      padding: 0.3em 0;
+    }
+    .filter-input::placeholder {
+      color: #9ca3af;
     }
     .filter-clear {
-      position: absolute;
-      top: 50%;
-      right: 2em;
-      transform: translateY(-50%);
       border: none;
-      background: #fff;
-      color: #888;
-      border-radius: 2em;
-      height: 2.4em;
-      font-size: 1em;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 1.2em;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 4px 0 #0001;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      padding: 0 1.2em;
-      z-index: 1;
+      transition: color 0.15s;
+      padding: 0 0.25em;
+      margin-left: 0.5em;
     }
     .filter-clear:hover {
-      background: #f59e0b;
-      color: #fff;
+      color: #f59e0b;
     }
     </style>
     <% if @project_environments.empty? %>
@@ -157,8 +146,8 @@
         </div>
         <% @project_environments.each do |project, env| %>
           <%= link_to project_environment_path(project.key, env.key), class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
-            <span class="col-project"><%= project.name %></span>
-            <span class="col-environment"><%= env.name %></span>
+            <span class="col-project" title="<%= project.name %>"><%= project.name %></span>
+            <span class="col-environment" title="<%= env.name %>"><%= env.name %></span>
             <span class="col-status">
               <span class="status-indicator status-indicator--<%= env.last_check_status %>"></span>
               <span class="status-text status-text--<%= env.last_check_status %>"><%= env.last_check_status.upcase %></span>
