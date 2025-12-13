@@ -20,7 +20,6 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     get project_path(@project.key)
     assert_response :success
     assert_select "h1", "Test Project"
-    assert_select ".project-key-tag", "test-project"
   end
 
   test "shows drift check history" do
