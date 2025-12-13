@@ -20,20 +20,28 @@
         <% end %>
       </div>
     </div>
-    <% if @project.repository.present? %>
+    <% if @project.repository.present? || @slack_channel.present? %>
       <div class="summary-bottom">
-        <span class="project-detail-item">
-          <%
-            repo_icon = case @project.repository
-            when /github\.com/ then "github"
-            when /gitlab\.com/ then "gitlab"
-            when /bitbucket\.org/ then "bitbucket"
-            else "generic"
-            end
-          %>
-          <span class="repo-icon repo-icon--<%= repo_icon %>"></span>
-          <%= link_to @project.repository.sub(%r{^https?://}, ''), @project.repository, target: "_blank", rel: "noopener noreferrer" %>
-        </span>
+        <% if @project.repository.present? %>
+          <span class="project-detail-item">
+            <%
+              repo_icon = case @project.repository
+              when /github\.com/ then "github"
+              when /gitlab\.com/ then "gitlab"
+              when /bitbucket\.org/ then "bitbucket"
+              else "generic"
+              end
+            %>
+            <span class="repo-icon repo-icon--<%= repo_icon %>"></span>
+            <%= link_to @project.repository.sub(%r{^https?://}, ''), @project.repository, target: "_blank", rel: "noopener noreferrer" %>
+          </span>
+        <% end %>
+        <% if @slack_channel.present? %>
+          <span class="project-detail-item">
+            <span class="slack-icon"></span>
+            <span class="slack-channel"><%= @slack_channel.config["channel"] %></span>
+          </span>
+        <% end %>
       </div>
     <% end %>
   </section>
