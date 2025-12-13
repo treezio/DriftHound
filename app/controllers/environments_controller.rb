@@ -1,4 +1,5 @@
 class EnvironmentsController < ApplicationController
+  before_action :require_login, only: [ :destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   def show
@@ -8,6 +9,14 @@ class EnvironmentsController < ApplicationController
     # Environment-level channel takes precedence, otherwise fall back to project-level
     @slack_channel = @environment.notification_channels.for_type("slack").enabled.first ||
                      @project.notification_channels.for_type("slack").enabled.first
+  end
+
+  def destroy
+    @project = Project.find_by!(key: params[:project_key])
+    @environment = @project.environments.find_by!(key: params[:key])
+    environment_name = @environment.name
+    @environment.destroy
+    redirect_to project_path(@project.key), notice: "Environment '#{environment_name}' has been deleted"
   end
 
   private

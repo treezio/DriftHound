@@ -13,6 +13,14 @@ NotificationState.delete_all
 Environment.delete_all
 Project.delete_all
 ApiToken.delete_all
+User.delete_all
+
+# Create admin user
+admin_email = ENV.fetch("ADMIN_EMAIL", "admin")
+admin_password = ENV.fetch("ADMIN_PASSWORD", "changeme")
+User.create!(email: admin_email, password: admin_password, admin: true)
+puts "Admin user created: #{admin_email}"
+puts ""
 
 # Create API token
 api_token = ApiToken.create!(name: "default-token")

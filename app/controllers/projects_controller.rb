@@ -1,10 +1,18 @@
 class ProjectsController < ApplicationController
+  before_action :require_login, only: [ :destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   def show
     @project = Project.find_by!(key: params[:key])
     @environments = @project.environments.includes(:drift_checks).order(:name)
     @slack_channel = @project.notification_channels.for_type("slack").enabled.first
+  end
+
+  def destroy
+    @project = Project.find_by!(key: params[:key])
+    project_name = @project.name
+    @project.destroy
+    redirect_to root_path, notice: "Project '#{project_name}' and all its environments have been deleted"
   end
 
   private
