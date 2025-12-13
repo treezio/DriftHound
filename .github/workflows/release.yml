@@ -1,15 +1,7 @@
 name: Release DriftHound
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-      - '.github/**'  # includes workflow files, issue templates, etc.
-      - 'Makefile'
-      - 'docker-compose.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
