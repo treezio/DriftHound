@@ -5,6 +5,21 @@ module Api
         project = Project.find_or_create_by_key(params[:project_key])
         environment = Environment.find_or_create_by_key(project, params[:environment_key])
 
+        # Set project repository only if not already set (can be updated via GUI later)
+        if params[:repository].present? && project.repository.blank?
+          project.update!(repository: params[:repository])
+        end
+
+        # Set project branch only if not already set (can be updated via GUI later)
+        if params[:branch].present? && project.branch == "main"
+          project.update!(branch: params[:branch])
+        end
+
+        # Set environment directory only if not already set (can be updated via GUI later)
+        if params[:directory].present? && environment.directory.blank?
+          environment.update!(directory: params[:directory])
+        end
+
         # Update or create notification channel if configuration is provided
         if params[:notification_channel].present?
           update_notification_channel(environment)
