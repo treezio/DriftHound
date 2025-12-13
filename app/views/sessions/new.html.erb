@@ -1,0 +1,22 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>DriftHound</h1>
+      <p>Sign in to manage your projects</p>
+    </div>
+
+    <%= form_with url: login_path, method: :post, class: "login-form" do |f| %>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email" required autofocus placeholder="admin">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+    <% end %>
+  </div>
+</div>

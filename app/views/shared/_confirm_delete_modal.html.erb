@@ -1,0 +1,31 @@
+<%#
+  Confirmation modal for delete actions
+
+  Local variables:
+  - resource_type: "project" or "environment"
+  - resource_name: Name of the resource being deleted
+  - delete_path: Path to send the DELETE request to
+  - cascade_warning: Optional additional warning about cascading deletes
+%>
+
+<dialog class="confirm-modal" data-modal-target="dialog" data-action="click->modal#closeOnBackdrop">
+  <div class="confirm-modal-content">
+    <div class="confirm-modal-header">
+      <span class="confirm-modal-icon">&#9888;</span>
+      <h2>Delete <%= resource_type.capitalize %>?</h2>
+    </div>
+
+    <div class="confirm-modal-body">
+      <p>Are you sure you want to delete <strong><%= resource_name %></strong>?</p>
+      <% if local_assigns[:cascade_warning] %>
+        <p class="confirm-modal-warning"><%= cascade_warning %></p>
+      <% end %>
+      <p class="confirm-modal-note">This action cannot be undone.</p>
+    </div>
+
+    <div class="confirm-modal-actions">
+      <button type="button" class="btn btn-secondary" data-action="click->modal#close">Cancel</button>
+      <%= button_to "Delete #{resource_type.capitalize}", delete_path, method: :delete, class: "btn btn-danger" %>
+    </div>
+  </div>
+</dialog>

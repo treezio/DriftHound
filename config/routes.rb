@@ -16,8 +16,15 @@ Rails.application.routes.draw do
     end
   end
 
+  # Session routes
+  get "login", to: "sessions#new"
+  post "login", to: "sessions#create"
+  delete "logout", to: "sessions#destroy"
+
   # Dashboard routes
   root "dashboard#index"
   get "projects/:key", to: "projects#show", as: :project
+  delete "projects/:key", to: "projects#destroy"
   get "projects/:project_key/environments/:key", to: "environments#show", as: :project_environment
+  delete "projects/:project_key/environments/:key", to: "environments#destroy"
 end

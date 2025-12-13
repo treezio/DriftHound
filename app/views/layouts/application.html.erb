@@ -23,6 +23,39 @@
   </head>
 
   <body>
+    <% if flash[:notice] || flash[:alert] %>
+      <div class="flash-messages">
+        <% if flash[:notice] %>
+          <div class="flash flash-notice" data-controller="flash">
+            <span><%= flash[:notice] %></span>
+            <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
+          </div>
+        <% end %>
+        <% if flash[:alert] %>
+          <div class="flash flash-alert" data-controller="flash">
+            <span><%= flash[:alert] %></span>
+            <button type="button" class="flash-close" data-action="click->flash#dismiss">&times;</button>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <nav class="top-nav">
+      <div class="nav-container">
+        <div class="nav-left">
+          <%= link_to "DriftHound", root_path, class: "nav-brand" %>
+        </div>
+        <div class="nav-right">
+          <% if logged_in? %>
+            <span class="nav-user"><%= current_user.email %></span>
+            <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-secondary btn-sm" %>
+          <% else %>
+            <%= link_to "Login", login_path, class: "btn btn-secondary btn-sm" %>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
     <main class="container">
       <%= yield %>
     </main>

@@ -5,6 +5,7 @@ DriftHound can be configured using environment variables for deployment flexibil
 ## Table of Contents
 
 - [Application Settings](#application-settings)
+- [Admin Authentication](#admin-authentication)
 - [Database Configuration](#database-configuration)
 - [Slack Notifications](#slack-notifications)
 - [Web Server Settings](#web-server-settings)
@@ -85,6 +86,68 @@ bin/rails secret
 - Use a secrets management system (e.g., sops, AWS Secrets Manager, HashiCorp Vault)
 - Changing this value will invalidate all existing sessions and encrypted data
 - Each environment should use a different secret
+
+## Admin Authentication
+
+DriftHound includes a web-based admin authentication system to protect destructive operations like deleting projects and environments. Admin credentials are configured via environment variables.
+
+### ADMIN_EMAIL
+
+Email address for the admin user account.
+
+**Required:** Yes (production only)
+**Example:**
+
+```bash
+ADMIN_EMAIL=admin@example.com
+```
+
+### ADMIN_PASSWORD
+
+Password for the admin user account.
+
+**Required:** Yes (production only)
+**Minimum:** 6 characters
+**Example:**
+
+```bash
+ADMIN_PASSWORD=your-secure-password
+```
+
+### How Admin User Creation Works
+
+**Development:**
+- Run `rails db:seed` to create an admin user with defaults (`admin` / `changeme`)
+- Or set `ADMIN_EMAIL` and `ADMIN_PASSWORD` before seeding for custom credentials
+
+**Production:**
+- Both `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables are **required**
+- The admin user is created automatically during `rails db:migrate`
+- If credentials are not provided, both migration and app boot will fail with an error
+
+```bash
+# Production deployment
+ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=secure_password rails db:migrate
+```
+
+### Security Notes
+
+- **Never use default credentials in production** - The migration will fail if you don't provide credentials
+- **Use strong passwords** - Minimum 6 characters, but longer is better
+- **Store credentials securely** - Use environment variables, secrets managers, or encrypted configs
+- Admin credentials can be updated by running the migration again with new ENV values (upsert behavior)
+
+### Protected Actions
+
+When logged in as admin, you can:
+- Delete projects (cascades to all environments and drift checks)
+- Delete environments (cascades to all drift checks)
+
+Read-only operations (viewing dashboard, projects, environments, drift history) do not require authentication.
+
+### Logging In
+
+Access the login page at `/login`. After successful authentication, you'll be redirected to the dashboard with access to admin actions.
 
 ## Database Configuration
 
@@ -313,6 +376,10 @@ RAILS_ENV=production
 APP_URL=https://drifthound.example.com
 RAILS_LOG_LEVEL=info
 SECRET_KEY_BASE=340b6113695da1baed5d5b7945bff4dc4ab86b75f602c5183624c1b87ffc17d192c18572196456bc3242b13ebf74ab75053c9c87ee2202d2718fbfe85e2ff94a
+
+# Admin Authentication (required in production)
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your-secure-admin-password
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password
