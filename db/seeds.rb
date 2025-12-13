@@ -260,6 +260,38 @@ env6.update!(status: :drift)
 puts "  ✓ Status changed 'ok' → 'drift' but no channels configured"
 puts ""
 
+# Scenario 7: Long project and environment names (for testing UI overflow)
+project7 = Project.create!(
+  name: "super-long-project-name-for-enterprise-infrastructure-management-system",
+  key: "super-long-project-name-for-enterprise-infrastructure-management-system",
+  repository: "https://github.com/acme-corporation/super-long-project-name-for-enterprise-infrastructure-management-system"
+)
+
+env7 = project7.environments.create!(
+  name: "production-us-east-1-primary-datacenter-cluster-a",
+  key: "production-us-east-1-primary-datacenter-cluster-a",
+  status: :ok,
+  last_checked_at: 5.minutes.ago,
+  directory: "terraform/environments/production/us-east-1/primary-datacenter/cluster-a"
+)
+
+env7.drift_checks.create!(
+  status: :ok,
+  add_count: 0,
+  change_count: 0,
+  destroy_count: 0,
+  duration: 120,
+  raw_output: "No changes. Infrastructure matches code.",
+  created_at: Time.current,
+  execution_number: 1
+)
+
+puts "Scenario 7: Long Names (UI overflow testing)"
+puts "  Project: #{project7.name}"
+puts "  Environment: #{env7.name}"
+puts "  ✓ Created for testing long name overflow in UI"
+puts ""
+
 puts "=" * 80
 puts "Summary"
 puts "=" * 80
