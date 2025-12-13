@@ -7,8 +7,9 @@ require 'json'
 require 'net/http'
 require 'uri'
 
-# Usage: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=... [--dir=DIR]
-# Example: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=http://localhost:3000 --dir=infra
+# Usage: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=... [--dir=DIR] [--repository=URL] [--branch=BRANCH]
+# Example: drifthound-cli --tool=terraform --project=my-project --token=XXX --api-url=http://localhost:3000 --dir=infra --repository=https://github.com/org/repo --branch=master
+# Note: Repository URL and branch are auto-detected from git if not provided
 
 require 'optparse'
 opts = {}
@@ -20,6 +21,8 @@ OptionParser.new do |o|
   o.on('--token=TOKEN', 'API token') { |v| opts[:token] = v }
   o.on('--api-url=URL', 'API base URL') { |v| opts[:api_url] = v }
   o.on('--dir=DIR', 'Working directory') { |v| opts[:dir] = v }
+  o.on('--repository=URL', 'Repository URL (auto-detected from git if not provided)') { |v| opts[:repository] = v }
+  o.on('--branch=BRANCH', 'Repository branch (auto-detected from git if not provided)') { |v| opts[:branch] = v }
   o.on('--slack-channel=CHANNEL', 'Slack channel for notifications (e.g., #drift-alerts)') { |v| opts[:slack_channel] = v }
 end.parse!
 
@@ -31,6 +34,56 @@ abort('Missing --token') unless opts[:token]
 abort('Missing --api-url') unless opts[:api_url]
 
 dir = opts[:dir] || Dir.pwd
+
+# Auto-detect repository URL from git if not provided
+def detect_git_repository(dir)
+  git_url = `git -C "#{dir}" remote get-url origin 2>/dev/null`.strip
+  return nil if git_url.empty?
+
+  # Convert SSH URLs to HTTPS
+  # git@github.com:org/repo.git -> https://github.com/org/repo
+  # ssh://git@github.com/org/repo.git -> https://github.com/org/repo
+  if git_url =~ /^git@([^:]+):(.+)$/
+    # git@github.com:org/repo.git format
+    host = $1
+    path = $2
+    git_url = "https://#{host}/#{path}"
+  elsif git_url.start_with?('ssh://git@')
+    git_url = git_url.sub('ssh://git@', 'https://')
+  end
+
+  # Remove .git suffix
+  git_url.sub(/\.git$/, '')
+rescue
+  nil
+end
+
+# Auto-detect branch from git if not provided
+def detect_git_branch(dir)
+  branch = `git -C "#{dir}" rev-parse --abbrev-ref HEAD 2>/dev/null`.strip
+  return nil if branch.empty? || branch == 'HEAD'
+  branch
+rescue
+  nil
+end
+
+# Auto-detect repository and branch if not provided
+unless opts[:repository]
+  detected_repo = detect_git_repository(dir)
+  if detected_repo
+    opts[:repository] = detected_repo
+    puts "Auto-detected repository: #{detected_repo}"
+  end
+end
+
+unless opts[:branch]
+  detected_branch = detect_git_branch(dir)
+  if detected_branch
+    opts[:branch] = detected_branch
+    puts "Auto-detected branch: #{detected_branch}"
+  end
+end
+
 cmd = case opts[:tool]
 when 'terraform', 'opentofu' then [ opts[:tool], 'plan', '-no-color', '-detailed-exitcode', '-lock=false' ]
 when 'terragrunt' then [ 'terragrunt', 'plan', '-no-color', '-detailed-exitcode', '-lock=false' ]
@@ -57,10 +110,10 @@ $stdout.flush
 # Determine status from -detailed-exitcode
 # Exit code 0 = no changes, 1 = error, 2 = changes detected (drift)
 status = case exit_code
-         when 0 then 'ok'
-         when 2 then 'drift'
-         else 'error'
-         end
+when 0 then 'ok'
+when 2 then 'drift'
+else 'error'
+end
 puts "Determined status: #{status}"
 
 add_count = output[/ (\d+) to add/, 1]&.to_i || 0
@@ -74,8 +127,15 @@ payload = {
   change_count: change_count,
   destroy_count: destroy_count,
   duration: duration,
-  raw_output: output
+  raw_output: output,
+  directory: dir
 }
+
+# Add repository if provided
+payload[:repository] = opts[:repository] if opts[:repository]
+
+# Add branch if provided
+payload[:branch] = opts[:branch] if opts[:branch]
 
 # Add notification channel configuration if provided
 if opts[:slack_channel]
