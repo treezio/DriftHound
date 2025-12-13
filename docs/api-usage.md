@@ -33,7 +33,10 @@ curl -X POST \
     "change_count": 1,
     "destroy_count": 0,
     "duration": 8.2,
-    "raw_output": "Plan: 2 to add, 1 to change, 0 to destroy."
+    "raw_output": "Plan: 2 to add, 1 to change, 0 to destroy.",
+    "directory": "infra/terraform/production",
+    "repository": "https://github.com/myorg/infrastructure",
+    "branch": "master"
   }'
 ```
 
@@ -56,6 +59,9 @@ curl -X POST \
 | `destroy_count` | integer | No | Number of resources to destroy |
 | `duration` | float | No | Execution duration in seconds |
 | `raw_output` | text | No | Full Terraform plan output |
+| `directory` | string | No | Directory where Terraform is executed. Only set on first call; subsequent calls won't overwrite. Update via GUI. |
+| `repository` | string | No | Repository URL (e.g., `https://github.com/org/repo`). Only set on first call; subsequent calls won't overwrite. Update via GUI. |
+| `branch` | string | No | Repository branch (default: `main`). Only set on first call if different from default; update via GUI. |
 | `notification_channel` | object | No | Optional notification channel configuration (see [Advanced Features](#advanced-features)) |
 
 ### Response

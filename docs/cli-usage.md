@@ -70,21 +70,35 @@ docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
 | `--environment`   | Yes      | Environment key                              |
 | `--token`         | Yes      | API token                                    |
 | `--api-url`       | Yes      | DriftHound API base URL                      |
-| `--dir`           | No       | Directory to run the tool in (default: `.`)  |
+| `--dir`           | No       | Directory to run the tool in (default: `.`). Stored in environment on first call only; update via GUI. |
+| `--repository`    | No       | Repository URL. **Auto-detected from git** if not provided. Stored in project on first call only; update via GUI. |
+| `--branch`        | No       | Repository branch. **Auto-detected from git** if not provided. Stored in project on first call only; update via GUI. |
 | `--slack-channel` | No       | Slack Channel to send notifications to       |
 
 ## How It Works
 
 The CLI will:
-1. Run the specified tool's plan command (e.g., `terraform plan`, `terragrunt plan`)
-2. Parse the output to extract drift information
-3. Send a drift report to the DriftHound API
+1. **Auto-detect repository URL and branch** from git (if running in a git repository)
+2. Run the specified tool's plan command (e.g., `terraform plan`, `terragrunt plan`)
+3. Parse the output to extract drift information
+4. Send a drift report to the DriftHound API
 
 The payload includes:
 - Drift status (`ok`, `drift`, `error`, `unknown`)
 - Resource counts (add, change, destroy)
 - Execution duration
 - Full plan output
+- Working directory (stored in the environment record)
+- Repository URL (auto-detected or provided, stored in the project record)
+- Branch (auto-detected or provided, stored in the project record)
+
+### Git Auto-Detection
+
+The CLI automatically detects:
+- **Repository URL**: From `git remote get-url origin`. SSH URLs are converted to HTTPS format.
+- **Branch**: From the current git branch (`git rev-parse --abbrev-ref HEAD`).
+
+You can override auto-detection by explicitly providing `--repository` or `--branch`.
 
 ## Advanced Configuration
 
