@@ -22,14 +22,29 @@ puts ""
 # Check if Slack is configured
 slack_enabled = Rails.configuration.notifications.dig(:slack, :enabled)
 slack_token = Rails.configuration.notifications.dig(:slack, :token)
-slack_channel = Rails.configuration.notifications.dig(:slack, :default_channel)
+slack_default_channel = Rails.configuration.notifications.dig(:slack, :default_channel)
 slack_configured = slack_enabled && slack_token.present?
+
+# Define different channels for each scenario (for testing purposes)
+# You can customize these channels or use environment variables
+slack_channels = {
+  payments: ENV.fetch("SLACK_CHANNEL_PAYMENTS", "#payments-drift"),
+  auth: ENV.fetch("SLACK_CHANNEL_AUTH", "#auth-drift"),
+  frontend: ENV.fetch("SLACK_CHANNEL_FRONTEND", "#frontend-drift"),
+  api: ENV.fetch("SLACK_CHANNEL_API", "#api-drift"),
+  database: ENV.fetch("SLACK_CHANNEL_DATABASE", "#database-drift")
+}
 
 puts "Slack Configuration:"
 puts "  - Enabled: #{slack_enabled ? '✓ Yes' : '✗ No'}"
 puts "  - Token: #{slack_token.present? ? '✓ Configured' : '✗ Missing'}"
-puts "  - Channel: #{slack_channel}"
+puts "  - Default Channel: #{slack_default_channel}"
 puts "  - Status: #{slack_configured ? '✓ Ready to send notifications' : '✗ Set SLACK_NOTIFICATIONS_ENABLED=true and SLACK_BOT_TOKEN'}"
+puts ""
+puts "Channels per project:"
+slack_channels.each do |project, channel|
+  puts "  - #{project}: #{channel}"
+end
 puts ""
 
 # Create test projects with different scenarios
@@ -38,10 +53,10 @@ puts ""
 
 # Scenario 1: Drift Detection
 project1 = Project.create!(name: "payment-service", key: "payment-service", repository: "https://github.com/acme/payment-service")
-project1.notification_channels.find_or_create_by!(channel_type: "slack") do |channel|
-  channel.config = { "channel" => slack_channel }
-  channel.enabled = true
-end
+project1.notification_channels.find_or_initialize_by(channel_type: "slack").update!(
+  config: { "channel" => slack_channels[:payments] },
+  enabled: true
+)
 
 env1 = project1.environments.create!(
   name: "Production",
@@ -81,12 +96,46 @@ env1.drift_checks.create!(
 puts "  ✓ Status changed from 'ok' to 'drift'"
 puts ""
 
+# Scenario 1b: Same project, different environment with its own Slack channel
+env1b = project1.environments.create!(
+  name: "Staging",
+  key: "staging",
+  last_checked_at: 30.minutes.ago,
+  directory: "terraform/staging"
+)
+
+# Override the project-level Slack channel for this specific environment
+env1b.notification_channels.create!(
+  channel_type: "slack",
+  config: { "channel" => ENV.fetch("SLACK_CHANNEL_PAYMENTS_STAGING", "#payments-staging") },
+  enabled: true
+)
+
+env1b.drift_checks.create!(
+  status: :ok,
+  add_count: 0,
+  change_count: 0,
+  destroy_count: 0,
+  duration: 38,
+  raw_output: "No changes. Infrastructure matches code.",
+  created_at: Time.current,
+  execution_number: 1
+)
+
+puts "Scenario 1b: Environment-specific Slack channel"
+puts "  Project: payment-service"
+puts "  Environment: Staging"
+puts "  Project default channel: #{slack_channels[:payments]}"
+puts "  Environment override: #{ENV.fetch('SLACK_CHANNEL_PAYMENTS_STAGING', '#payments-staging')}"
+puts "  ✓ Staging uses its own Slack channel (overrides project default)"
+puts ""
+
 # Scenario 2: Error Detection
 project2 = Project.create!(name: "auth-service", key: "auth-service", repository: "https://gitlab.com/acme/auth-service")
-project2.notification_channels.find_or_create_by!(channel_type: "slack") do |channel|
-  channel.config = { "channel" => slack_channel }
-  channel.enabled = true
-end
+project2.notification_channels.find_or_initialize_by(channel_type: "slack").update!(
+  config: { "channel" => slack_channels[:auth] },
+  enabled: true
+)
 
 env2 = project2.environments.create!(
   name: "Staging",
@@ -116,10 +165,10 @@ puts ""
 
 # Scenario 3: Drift Resolved
 project3 = Project.create!(name: "frontend-app", key: "frontend-app", repository: "https://github.com/acme/frontend-app")
-project3.notification_channels.find_or_create_by!(channel_type: "slack") do |channel|
-  channel.config = { "channel" => slack_channel }
-  channel.enabled = true
-end
+project3.notification_channels.find_or_initialize_by(channel_type: "slack").update!(
+  config: { "channel" => slack_channels[:frontend] },
+  enabled: true
+)
 
 env3 = project3.environments.create!(
   name: "Production",
@@ -163,10 +212,10 @@ puts ""
 
 # Scenario 4: Error Resolved
 project4 = Project.create!(name: "api-gateway", key: "api-gateway", repository: "https://github.com/acme/api-gateway")
-project4.notification_channels.find_or_create_by!(channel_type: "slack") do |channel|
-  channel.config = { "channel" => slack_channel }
-  channel.enabled = true
-end
+project4.notification_channels.find_or_initialize_by(channel_type: "slack").update!(
+  config: { "channel" => slack_channels[:api] },
+  enabled: true
+)
 
 env4 = project4.environments.create!(
   name: "Production",
@@ -210,10 +259,10 @@ puts ""
 
 # Scenario 5: No notification (lateral move - drift to drift)
 project5 = Project.create!(name: "database-service", key: "database-service")
-project5.notification_channels.find_or_create_by!(channel_type: "slack") do |channel|
-  channel.config = { "channel" => slack_channel }
-  channel.enabled = true
-end
+project5.notification_channels.find_or_initialize_by(channel_type: "slack").update!(
+  config: { "channel" => slack_channels[:database] },
+  enabled: true
+)
 
 env5 = project5.environments.create!(
   name: "Production",
@@ -314,10 +363,21 @@ puts "  - Scenario 6: No notification channel"
 puts ""
 
 if slack_configured
-  puts "✓ Check your Slack channel '#{slack_channel}' for 6 notifications!"
+  puts "✓ Check the following Slack channels for notifications:"
   puts ""
-  puts "Note: Jobs are processed with :async adapter."
-  puts "      Notifications should appear within a few seconds."
+  puts "  #{slack_channels[:payments]} → payment-service/production (Project default)"
+  puts "  #{ENV.fetch('SLACK_CHANNEL_PAYMENTS_STAGING', '#payments-staging')} → payment-service/staging (Environment override)"
+  puts "  #{slack_channels[:auth]} → auth-service (Error Detected)"
+  puts "  #{slack_channels[:frontend]} → frontend-app (Drift Detected + Resolved)"
+  puts "  #{slack_channels[:api]} → api-gateway (Error Detected + Resolved)"
+  puts "  #{slack_channels[:database]} → database-service (No notification - lateral move)"
+  puts ""
+  puts "Channel inheritance example (payment-service):"
+  puts "  - Production env → uses project default: #{slack_channels[:payments]}"
+  puts "  - Staging env → uses environment override: #{ENV.fetch('SLACK_CHANNEL_PAYMENTS_STAGING', '#payments-staging')}"
+  puts ""
+  puts "Note: Jobs are processed with :inline adapter in development."
+  puts "      Notifications should appear immediately."
   puts ""
   puts "Expected notification types:"
   puts "  - 2x Drift Detected (orange/yellow)"
@@ -328,5 +388,12 @@ else
   puts "⚠ Slack is not configured. Set environment variables to test:"
   puts "  export SLACK_NOTIFICATIONS_ENABLED=true"
   puts "  export SLACK_BOT_TOKEN=xoxb-your-token-here"
+  puts ""
+  puts "Optionally set custom channels per project:"
+  puts "  export SLACK_CHANNEL_PAYMENTS=#your-payments-channel"
+  puts "  export SLACK_CHANNEL_AUTH=#your-auth-channel"
+  puts "  export SLACK_CHANNEL_FRONTEND=#your-frontend-channel"
+  puts "  export SLACK_CHANNEL_API=#your-api-channel"
+  puts "  export SLACK_CHANNEL_DATABASE=#your-database-channel"
 end
 puts "=" * 80
