@@ -26,6 +26,8 @@ services:
       NOTIFY_ON_FIRST_CHECK: "true"
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
       SLACK_DEFAULT_CHANNEL: "#infrastructure-drift"
+      ADMIN_EMAIL: "foo@example.com"
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       - postgres
     ports:
