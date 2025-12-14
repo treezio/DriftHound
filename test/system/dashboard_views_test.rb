@@ -80,14 +80,14 @@ class DashboardViewsTest < ApplicationSystemTestCase
     find("[data-view='chart']").click
 
     # Tag buttons should be present
-    assert_selector ".chart-tag-btn"
+    assert_selector ".tag-filter-btn"
 
     # Click on a tag filter (e.g., "status")
-    status_tag = find(".chart-tag-btn[data-tag='status']")
+    status_tag = find(".tag-filter-btn[data-tag='status']")
     status_tag.click
 
     # The clicked tag should be active
-    assert_selector ".chart-tag-btn.active[data-tag='status']"
+    assert_selector ".tag-filter-btn.active[data-tag='status']"
 
     # Only status-tagged charts should be visible
     # (charts with data-tags containing "status")
@@ -99,13 +99,13 @@ class DashboardViewsTest < ApplicationSystemTestCase
     find("[data-view='chart']").click
 
     # First filter by a specific tag
-    find(".chart-tag-btn[data-tag='status']").click
+    find(".tag-filter-btn[data-tag='status']").click
 
     # Then click All to show all charts
-    find(".chart-tag-btn[data-tag='']").click
+    find(".tag-filter-btn[data-tag='']").click
 
     # All tag should be active
-    assert_selector ".chart-tag-btn.active[data-tag='']"
+    assert_selector ".tag-filter-btn.active[data-tag='']"
 
     # All charts should be visible
     assert_selector ".chart-card", minimum: 10
@@ -140,8 +140,8 @@ class DashboardViewsTest < ApplicationSystemTestCase
     # Both projects should be visible
     assert_selector ".project-env-row", minimum: 2
 
-    # Search for "ViewTest"
-    fill_in "Search projects or environments", with: "ViewTest"
+    # Search for "ViewTest" using id
+    fill_in "name-filter", with: "ViewTest"
 
     # Only ViewTest Project should be visible
     assert_selector ".col-project", text: "ViewTest Project"
@@ -173,14 +173,14 @@ class DashboardViewsTest < ApplicationSystemTestCase
   test "clear filters button resets all filters" do
     visit root_path
 
-    # Apply a filter
-    fill_in "Search projects or environments", with: "ViewTest"
+    # Apply a filter using id
+    fill_in "name-filter", with: "ViewTest"
 
-    # Clear button should appear
-    assert_selector "#clear-filters-btn"
+    # Clear button should appear (may be hidden initially, check for element)
+    assert_selector "#clear-filters"
 
     # Click clear
-    find("#clear-filters-btn").click
+    find("#clear-filters").click
 
     # Search should be cleared
     assert_equal "", find("#name-filter").value
@@ -205,8 +205,8 @@ class DashboardViewsTest < ApplicationSystemTestCase
     visit root_path
     find("[data-view='chart']").click
 
-    # Chart cards should have info icons
-    assert_selector ".chart-info-icon", minimum: 1
+    # Chart cards should have info elements with tooltip data
+    assert_selector ".chart-info[data-tooltip]", minimum: 1
   end
 
   test "charts render without JavaScript errors" do
