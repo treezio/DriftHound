@@ -532,8 +532,18 @@ puts ""
 # Collect all environments for historical data generation
 all_environments = Environment.all.to_a
 
-# Generate realistic drift check history over the last 30 days
-# Simulates daily checks with varying results
+# Smart Backfill Strategy:
+# 1. First, generate all historical check data (without execution_number)
+# 2. Store them in memory with their intended timestamps
+# 3. Sort by created_at and assign execution_number in chronological order
+# This ensures execution_number always matches chronological order
+
+puts "Generating historical checks data..."
+
+# Track historical checks per environment (env_id => array of check attributes)
+historical_checks_by_env = Hash.new { |h, k| h[k] = [] }
+
+# Generate check data for each day
 30.downto(1) do |days_ago|
   check_date = days_ago.days.ago
 
@@ -572,16 +582,16 @@ all_environments = Environment.all.to_a
                  "Error: State lock timeout" ].sample
     end
 
-    env.drift_checks.create!(
+    # Store check attributes with calculated timestamp
+    historical_checks_by_env[env.id] << {
       status: status,
       add_count: add_count,
       change_count: change_count,
       destroy_count: destroy_count,
       duration: rand(20..180),
       raw_output: output,
-      created_at: check_date + rand(0..23).hours + rand(0..59).minutes,
-      execution_number: env.drift_checks.count + 1
-    )
+      created_at: check_date + rand(0..23).hours + rand(0..59).minutes
+    }
   end
 
   # Progress indicator
@@ -589,9 +599,59 @@ all_environments = Environment.all.to_a
 end
 puts ""
 
+# Now insert checks in chronological order per environment
+# This ensures execution_number matches created_at order
+puts "Inserting checks with proper execution numbering..."
+
+all_environments.each do |env|
+  checks_data = historical_checks_by_env[env.id]
+  next if checks_data.empty?
+
+  # Sort by created_at (oldest first)
+  checks_data.sort_by! { |c| c[:created_at] }
+
+  # Get current max execution_number for this environment
+  current_max = env.drift_checks.maximum(:execution_number) || 0
+
+  # Insert in chronological order with sequential execution numbers
+  checks_data.each_with_index do |check_attrs, index|
+    env.drift_checks.create!(
+      check_attrs.merge(execution_number: current_max + index + 1)
+    )
+  end
+end
+
+puts "✓ Inserted historical checks"
+
 # Count generated historical checks
-historical_checks = DriftCheck.where("created_at < ?", 1.day.ago).count
-puts "✓ Generated #{historical_checks} historical drift checks"
+historical_checks_count = DriftCheck.where("created_at < ?", 1.day.ago).count
+puts "✓ Generated #{historical_checks_count} historical drift checks"
+puts ""
+
+# ============================================================================
+# Final Fix: Ensure execution_number matches chronological order
+# ============================================================================
+# The scenario checks were created with execution_number 1, 2 but with current
+# timestamps. Historical checks were added with proper sequential numbers.
+# This final pass ensures ALL checks have execution_number in chronological order.
+puts "Fixing execution numbers to match chronological order..."
+
+Environment.find_each do |env|
+  checks = env.drift_checks.order(:created_at).to_a
+  next if checks.empty?
+
+  # First, set all to negative IDs to avoid unique constraint conflicts
+  checks.each do |check|
+    check.update_column(:execution_number, -check.id)
+  end
+
+  # Now assign sequential numbers in chronological order
+  checks.each_with_index do |check, index|
+    check.update_column(:execution_number, index + 1)
+  end
+end
+
+puts "✓ Execution numbers fixed for all environments"
 puts ""
 
 # Show distribution
