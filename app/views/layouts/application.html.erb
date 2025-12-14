@@ -43,7 +43,10 @@
     <nav class="top-nav">
       <div class="nav-container">
         <div class="nav-left">
-          <%= link_to "DriftHound", root_path, class: "nav-brand" %>
+          <%= link_to root_path, class: "nav-brand" do %>
+            <img src="/drifthound_logo.png" alt="DriftHound" class="nav-logo">
+            <span>DriftHound</span>
+          <% end %>
         </div>
         <div class="nav-right">
           <% if logged_in? %>

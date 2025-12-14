@@ -1,11 +1,5 @@
 <div class="dashboard" data-controller="dashboard-filter">
-  <header class="dashboard-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15em; margin-bottom: 1.5em;">
-    <img src="/drifthound_logo.png" alt="DriftHound Logo" style="height: 7em; width: 11em; margin-bottom: 0.05em; object-fit: contain;">
-    <h1 style="margin: 0; font-size: 2.2em;">DriftHound</h1>
-    <p class="subtitle">Terraform Drift Monitor</p>
-  </header>
-
-  <!-- Project status summary by aggregated status -->
+  <!-- Overall Status Summary (always visible) -->
   <section class="status-summary">
     <div class="status-badge status-ok" data-status-filter="ok" data-dashboard-filter-target="statusBadge" style="cursor:pointer;">
       <span class="count"><%= @project_environment_status_counts["ok"] || 0 %></span>
@@ -25,112 +19,294 @@
     </div>
   </section>
 
-  <section class="projects-list">
-    <h2>Projects</h2>
-    <% # Collect unique environment names for the filter %>
-    <% env_names = @project_environments.map { |_, env| env.name }.uniq.sort %>
-    <div class="dashboard-filter-bar">
+  <!-- Detail Section Header with View Toggle -->
+  <% env_names = @project_environments.map { |_, env| env.name }.uniq.sort %>
+  <div class="detail-header">
+    <!-- Table filters (hidden in chart view) -->
+    <div class="detail-filters" data-dashboard-filter-target="tableFilters">
       <% if env_names.size > 1 %>
         <select id="env-filter" class="filter-pill" data-dashboard-filter-target="envFilter">
-          <option value="">🌎 All Environments</option>
+          <option value="">All Environments</option>
           <% env_names.each do |name| %>
-            <option value="<%= name %>">🌱 <%= name %></option>
+            <option value="<%= name %>"><%= name %></option>
           <% end %>
         </select>
       <% end %>
-      <span class="filter-sep"></span>
       <span class="filter-search">
         <span class="filter-icon">🔍</span>
         <input id="name-filter" type="text" placeholder="Search projects or environments…" class="filter-input" data-dashboard-filter-target="nameFilter">
         <button id="clear-filters" class="filter-clear" title="Clear filters" style="display:none;" data-dashboard-filter-target="clearBtn">✕</button>
       </span>
+      <span class="filter-sep"></span>
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button type="button" class="view-toggle-btn" data-view="table" data-action="click->dashboard-filter#toggleView" data-dashboard-filter-target="viewToggle" title="Table view">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span>Table</span>
+        </button>
+        <button type="button" class="view-toggle-btn" data-view="chart" data-action="click->dashboard-filter#toggleView" data-dashboard-filter-target="viewToggle" title="Chart view">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Chart</span>
+        </button>
+      </div>
     </div>
-    <style>
-    .dashboard-filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: var(--color-card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      padding: 1rem 1.5rem;
-      margin-bottom: 1.5em;
-    }
-    .filter-pill {
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
-      border-radius: 6px;
-      padding: 0 2.5em 0 0.75em;
-      font-size: 1em;
-      height: 2.5em;
-      line-height: 2.5em;
-      outline: none;
-      transition: border-color 0.15s;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url('data:image/svg+xml;utf8,<svg fill="%236b7280" height="16" viewBox="0 0 20 20" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.06l3.71-3.83a.75.75 0 1 1 1.08 1.04l-4.25 4.39a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06z"/></svg>');
-      background-repeat: no-repeat;
-      background-position: right 0.75em center;
-      background-size: 1em;
-      overflow: visible;
-    }
-    .filter-pill::-ms-expand {
-      display: none;
-    }
-    .filter-pill:focus {
-      border-color: #2563eb;
-    }
-    .filter-sep {
-      width: 1px;
-      height: 1.5em;
-      background: #e5e7eb;
-    }
-    .filter-search {
-      display: flex;
-      align-items: center;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 0 0.75em;
-      height: 2.5em;
-      flex: 1;
-      min-width: 0;
-    }
-    .filter-icon {
-      font-size: 1em;
-      margin-right: 0.5em;
-      color: #9ca3af;
-      flex-shrink: 0;
-    }
-    .filter-input {
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 1em;
-      min-width: 0;
-      width: 100%;
-    }
-    .filter-input::placeholder {
-      color: #9ca3af;
-    }
-    .filter-clear {
-      border: none;
-      background: transparent;
-      color: #9ca3af;
-      font-size: 1.2em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: color 0.15s;
-      padding: 0 0.25em;
-      margin-left: 0.5em;
-    }
-    .filter-clear:hover {
-      color: #f59e0b;
-    }
-    </style>
+    <!-- Chart filters (hidden in table view) -->
+    <div class="detail-filters" data-dashboard-filter-target="chartFilters">
+      <% if env_names.size > 1 %>
+        <select id="chart-env-filter" class="filter-pill" data-dashboard-filter-target="chartEnvFilter">
+          <option value="">All Environments</option>
+          <% env_names.each do |name| %>
+            <option value="<%= name %>"><%= name %></option>
+          <% end %>
+        </select>
+        <span class="filter-sep"></span>
+      <% end %>
+      <!-- Tag filters -->
+      <div class="tag-filters" data-dashboard-filter-target="tagFilters">
+        <button type="button" class="tag-filter-btn active" data-tag="" data-action="click->dashboard-filter#filterByTag" data-dashboard-filter-target="tagBtn">All</button>
+        <button type="button" class="tag-filter-btn" data-tag="status" data-action="click->dashboard-filter#filterByTag" data-dashboard-filter-target="tagBtn">Status</button>
+        <button type="button" class="tag-filter-btn" data-tag="volume" data-action="click->dashboard-filter#filterByTag" data-dashboard-filter-target="tagBtn">Volume</button>
+        <button type="button" class="tag-filter-btn" data-tag="changes" data-action="click->dashboard-filter#filterByTag" data-dashboard-filter-target="tagBtn">Changes</button>
+        <button type="button" class="tag-filter-btn" data-tag="performance" data-action="click->dashboard-filter#filterByTag" data-dashboard-filter-target="tagBtn">Performance</button>
+      </div>
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button type="button" class="view-toggle-btn" data-view="table" data-action="click->dashboard-filter#toggleView" data-dashboard-filter-target="viewToggle" title="Table view">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span>Table</span>
+        </button>
+        <button type="button" class="view-toggle-btn" data-view="chart" data-action="click->dashboard-filter#toggleView" data-dashboard-filter-target="viewToggle" title="Chart view">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Chart</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart View -->
+  <section class="metrics-section" data-dashboard-filter-target="metricsSection" data-controller="chart-modal">
+    <div class="charts-grid" data-dashboard-filter-target="chartsGrid">
+      <!-- STATUS CHARTS (Overview) -->
+      <!-- Row 1: Status Distribution + Stability Score -->
+      <div class="chart-card" data-chart-id="status-distribution" data-tags="status" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Status Distribution
+            <span class="chart-info" data-tooltip="Breakdown of all drift check results by status over the last 30 days. Shows the proportion of OK, Drift, and Error states.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="status-chart"
+             data-status-chart-data-value="<%= @status_distribution_data.to_json %>">
+          <canvas data-status-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" data-chart-id="stability-score" data-tags="status" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Stability Score
+            <span class="chart-info" data-tooltip="Overall infrastructure stability based on consecutive OK checks. Stable (7+), Moderate (3-6), or Unstable (<3 consecutive OKs). Higher score = more consistent infrastructure.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="stability-score-chart"
+             data-stability-score-chart-data-value="<%= @stability_score_data.to_json %>">
+          <canvas data-stability-score-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 2: Drift Over Time + Weekly Health Trend -->
+      <div class="chart-card" data-chart-id="drift-over-time" data-tags="status" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Drift Over Time
+            <span class="chart-info" data-tooltip="Daily count of drift checks by status (OK, Drift, Error) over the last 30 days. Helps identify trends in infrastructure stability.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="drift-chart"
+             data-drift-chart-data-value="<%= @drift_chart_data.to_json %>">
+          <canvas data-drift-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" data-chart-id="weekly-trend" data-tags="status" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Weekly Health Trend
+            <span class="chart-info" data-tooltip="Weekly percentage breakdown of check results over the last 8 weeks. Shows how the overall health of your infrastructure is trending.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="weekly-chart"
+             data-weekly-chart-data-value="<%= @weekly_trend_data.to_json %>">
+          <canvas data-weekly-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 3: Health by Environment (status, single) -->
+      <div class="chart-card" data-chart-id="environment-health" data-tags="status" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Health by Environment
+            <span class="chart-info" data-tooltip="Status breakdown by environment type (e.g., production, staging). Compare the health of different environment tiers across all projects.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="environment-health-chart"
+             data-environment-health-chart-data-value="<%= @environment_health_data.to_json %>">
+          <canvas data-environment-health-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- CHANGES CHARTS -->
+      <!-- Row 3 continued: Resource Changes -->
+      <div class="chart-card" data-chart-id="resource-changes" data-tags="changes" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Resource Changes
+            <span class="chart-info" data-tooltip="Daily count of infrastructure resources added, changed, or destroyed over the last 14 days. Tracks the volume of detected drift.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="resource-changes-chart"
+             data-resource-changes-chart-data-value="<%= @resource_changes_data.to_json %>">
+          <canvas data-resource-changes-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 4: Drift Rate + Change Impact -->
+      <div class="chart-card" data-chart-id="drift-rate" data-tags="changes" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Drift Rate
+            <span class="chart-info" data-tooltip="Percentage of checks that detected drift each day over the last 14 days. A lower rate indicates better infrastructure consistency.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="drift-rate-chart"
+             data-drift-rate-chart-data-value="<%= @drift_rate_data.to_json %>">
+          <canvas data-drift-rate-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" data-chart-id="change-impact" data-tags="changes" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Change Impact
+            <span class="chart-info" data-tooltip="Stacked view of resource additions, modifications, and deletions over time. Shows the composition and magnitude of infrastructure changes.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="change-impact-chart"
+             data-change-impact-chart-data-value="<%= @change_impact_data.to_json %>">
+          <canvas data-change-impact-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- VOLUME CHARTS -->
+      <!-- Row 5: Check Volume + Checks per Project -->
+      <div class="chart-card" data-chart-id="check-volume" data-tags="volume" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Check Volume
+            <span class="chart-info" data-tooltip="Total number of drift checks executed per day over the last 14 days. Monitors the consistency of your drift detection coverage.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="check-volume-chart"
+             data-check-volume-chart-data-value="<%= @check_volume_data.to_json %>">
+          <canvas data-check-volume-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" data-chart-id="checks-per-project" data-tags="volume" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Checks per Project
+            <span class="chart-info" data-tooltip="Number of drift checks executed per project over the last 30 days, broken down by result status. Identifies which projects are most actively monitored.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="project-chart"
+             data-project-chart-data-value="<%= @checks_per_project_data.to_json %>">
+          <canvas data-project-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 6: Top Drifting Projects + Check Duration (Performance) -->
+      <div class="chart-card" data-chart-id="top-drifting" data-tags="volume" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Top Drifting Projects
+            <span class="chart-info" data-tooltip="Projects with the highest drift rate over the last 30 days. Identifies which projects need the most attention for drift remediation.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="top-drifting-chart"
+             data-top-drifting-chart-data-value="<%= @top_drifting_data.to_json %>">
+          <canvas data-top-drifting-chart-target="canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE CHART -->
+      <div class="chart-card" data-chart-id="check-duration" data-tags="performance" data-action="click->chart-modal#open" data-dashboard-filter-target="chartCard">
+        <div class="chart-card-header">
+          <h3>Check Duration
+            <span class="chart-info" data-tooltip="Average execution time of drift checks over the last 14 days. Helps identify performance issues or unusually long-running checks.">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </span>
+          </h3>
+          <span class="chart-expand-hint">Click to expand</span>
+        </div>
+        <div class="chart-container"
+             data-controller="duration-chart"
+             data-duration-chart-data-value="<%= @check_duration_data.to_json %>">
+          <canvas data-duration-chart-target="canvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Modal for expanded view -->
+    <div class="chart-modal" data-chart-modal-target="modal">
+      <div class="chart-modal-backdrop" data-action="click->chart-modal#close"></div>
+      <div class="chart-modal-content">
+        <div class="chart-modal-header">
+          <h2 data-chart-modal-target="title">Chart</h2>
+          <button type="button" class="chart-modal-close" data-action="click->chart-modal#close">&times;</button>
+        </div>
+        <div class="chart-modal-body" data-chart-modal-target="body">
+          <canvas data-chart-modal-target="canvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table View -->
+  <section class="projects-list" data-dashboard-filter-target="projectsSection">
     <% if @project_environments.empty? %>
       <div class="empty-state">
         <p>No projects or environments yet.</p>
@@ -144,23 +320,23 @@
           <span>Status</span>
           <span style="text-align:right;">Last Check</span>
         </div>
-        <% @project_environments.each do |project, env| %>
-          <%= link_to project_environment_path(project.key, env.key), class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
-            <span class="col-project" title="<%= project.name %>"><%= project.name %></span>
-            <span class="col-environment" title="<%= env.name %>"><%= env.name %></span>
-            <span class="col-status">
-              <span class="status-indicator status-indicator--<%= env.last_check_status %>"></span>
-              <span class="status-text status-text--<%= env.last_check_status %>"><%= env.last_check_status.upcase %></span>
-            </span>
-            <span class="col-time" style="text-align:right;">
-              <% if env.last_checked_at %>
-                <%= time_ago_in_words(env.last_checked_at) %> ago
-              <% else %>
-                Never
-              <% end %>
-            </span>
+          <% @project_environments.each do |project, env| %>
+            <%= link_to project_environment_path(project.key, env.key), class: "project-env-row project-row--#{env.status}", data: { environment: env.name, status: env.last_check_status, dashboard_filter_target: "projectRow" } do %>
+              <span class="col-project" title="<%= project.name %>"><%= project.name %></span>
+              <span class="col-environment" title="<%= env.name %>"><%= env.name %></span>
+              <span class="col-status">
+                <span class="status-indicator status-indicator--<%= env.last_check_status %>"></span>
+                <span class="status-text status-text--<%= env.last_check_status %>"><%= env.last_check_status.upcase %></span>
+              </span>
+              <span class="col-time" style="text-align:right;">
+                <% if env.last_checked_at %>
+                  <%= time_ago_in_words(env.last_checked_at) %> ago
+                <% else %>
+                  Never
+                <% end %>
+              </span>
+            <% end %>
           <% end %>
-        <% end %>
       </div>
     <% end %>
   </section>

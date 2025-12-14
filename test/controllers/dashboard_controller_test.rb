@@ -4,7 +4,8 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "shows dashboard" do
     get root_path
     assert_response :success
-    assert_select "h1", "DriftHound"
+    # Check for nav brand instead of h1
+    assert_select ".nav-brand", /DriftHound/
   end
 
   test "shows empty state when no projects exist" do
@@ -13,7 +14,6 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".empty-state"
   end
-
 
   test "shows dashboard with projects" do
     project = Project.create!(name: "Project", key: "project")
@@ -43,5 +43,194 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".status-badge.status-ok .count", "1"
     assert_select ".status-badge.status-drift .count", "1"
     assert_select ".status-badge.status-error .count", "1"
+  end
+
+  # ===== Chart View Tests =====
+
+  test "dashboard renders chart cards" do
+    Project.destroy_all
+    project = Project.create!(name: "Chart Test Project", key: "chart-test")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+    env.drift_checks.create!(
+      status: :ok,
+      add_count: 1,
+      change_count: 2,
+      destroy_count: 0,
+      duration: 5.5,
+      raw_output: "Plan: 1 to add, 2 to change, 0 to destroy."
+    )
+
+    get root_path
+    assert_response :success
+
+    # Verify chart cards are rendered (12 charts)
+    assert_select ".chart-card", 12
+
+    # Verify specific chart titles
+    assert_select ".chart-card h3", text: "Status Distribution"
+    assert_select ".chart-card h3", text: "Stability Score"
+    assert_select ".chart-card h3", text: "Drift Over Time"
+    assert_select ".chart-card h3", text: "Weekly Health Trend"
+    assert_select ".chart-card h3", text: "Health by Environment"
+    assert_select ".chart-card h3", text: "Resource Changes"
+    assert_select ".chart-card h3", text: "Drift Rate"
+    assert_select ".chart-card h3", text: "Change Impact"
+    assert_select ".chart-card h3", text: "Check Volume"
+    assert_select ".chart-card h3", text: "Checks per Project"
+    assert_select ".chart-card h3", text: "Top Drifting Projects"
+    assert_select ".chart-card h3", text: "Check Duration"
+  end
+
+  test "chart cards have data attributes for filtering" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+    env.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+
+    get root_path
+    assert_response :success
+
+    # Verify chart cards have data-tags attribute
+    assert_select ".chart-card[data-tags]", minimum: 12
+
+    # Verify specific tag categories exist
+    assert_select ".chart-card[data-tags*='status']", minimum: 1
+    assert_select ".chart-card[data-tags*='volume']", minimum: 1
+    assert_select ".chart-card[data-tags*='changes']", minimum: 1
+    assert_select ".chart-card[data-tags*='performance']", minimum: 1
+  end
+
+  test "chart environment filter dropdown is rendered" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    prod = project.environments.create!(name: "Production", key: "production", status: :ok)
+    staging = project.environments.create!(name: "Staging", key: "staging", status: :drift)
+    prod.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+    staging.drift_checks.create!(status: :drift, add_count: 1, change_count: 0, destroy_count: 0, raw_output: "Drift")
+
+    get root_path
+    assert_response :success
+
+    # Verify chart environment filter exists
+    assert_select "#chart-env-filter"
+    assert_select "#chart-env-filter option", minimum: 2 # "All" + environments
+  end
+
+  test "tag filter buttons are rendered" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+    env.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+
+    get root_path
+    assert_response :success
+
+    # Verify tag filter buttons exist
+    assert_select ".tag-filter-btn", minimum: 5 # All, Status, Volume, Changes, Performance
+    assert_select ".tag-filter-btn[data-tag='']" # All button
+    assert_select ".tag-filter-btn[data-tag='status']"
+    assert_select ".tag-filter-btn[data-tag='volume']"
+    assert_select ".tag-filter-btn[data-tag='changes']"
+    assert_select ".tag-filter-btn[data-tag='performance']"
+  end
+
+  test "view toggle buttons are rendered" do
+    get root_path
+    assert_response :success
+
+    # Verify view toggle exists
+    assert_select ".view-toggle"
+    assert_select "[data-view='table']"
+    assert_select "[data-view='chart']"
+  end
+
+  test "chart cards have info tooltips" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+    env.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+
+    get root_path
+    assert_response :success
+
+    # Verify info elements with tooltips are present
+    assert_select ".chart-info[data-tooltip]", minimum: 12
+  end
+
+  test "charts section contains canvas elements for Chart.js" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+    env.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+
+    get root_path
+    assert_response :success
+
+    # Verify canvas elements are present for charts
+    assert_select "canvas", minimum: 10 # Most charts use canvas (stability score uses different element)
+  end
+
+  test "table filters are rendered" do
+    Project.destroy_all
+    project = Project.create!(name: "Test Project", key: "test")
+    prod = project.environments.create!(name: "Production", key: "production", status: :ok)
+    staging = project.environments.create!(name: "Staging", key: "staging", status: :drift)
+    prod.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+    staging.drift_checks.create!(status: :drift, add_count: 1, change_count: 0, destroy_count: 0, raw_output: "Drift")
+
+    get root_path
+    assert_response :success
+
+    # Verify table filters exist
+    assert_select "#env-filter"
+    assert_select "#name-filter"
+    assert_select "#clear-filters" # Note: different ID from btn
+  end
+
+  test "dashboard renders correctly with multiple environments" do
+    Project.destroy_all
+    project = Project.create!(name: "Multi Env Project", key: "multi-env")
+    prod = project.environments.create!(name: "Production", key: "production", status: :ok)
+    staging = project.environments.create!(name: "Staging", key: "staging", status: :drift)
+    dev = project.environments.create!(name: "Development", key: "development", status: :error)
+
+    prod.drift_checks.create!(status: :ok, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "OK")
+    staging.drift_checks.create!(status: :drift, add_count: 1, change_count: 0, destroy_count: 0, raw_output: "Drift")
+    dev.drift_checks.create!(status: :error, add_count: 0, change_count: 0, destroy_count: 0, raw_output: "Error")
+
+    get root_path
+    assert_response :success
+
+    # Verify all environments appear
+    assert_select ".project-env-row", 3
+
+    # Verify environment filter has all options
+    assert_select "#env-filter option", minimum: 4 # "All" + 3 environments
+    assert_select "#chart-env-filter option", minimum: 4
+  end
+
+  test "dashboard renders correctly with historical data" do
+    Project.destroy_all
+    project = Project.create!(name: "Historical Project", key: "historical")
+    env = project.environments.create!(name: "Production", key: "production", status: :ok)
+
+    # Create checks over the past 30 days
+    30.times do |i|
+      status = i % 3 == 0 ? :drift : :ok
+      env.drift_checks.create!(
+        status: status,
+        add_count: i % 3,
+        change_count: i % 2,
+        destroy_count: 0,
+        raw_output: "Check #{i}",
+        created_at: i.days.ago
+      )
+    end
+
+    get root_path
+    assert_response :success
+
+    # Verify charts are still rendered with historical data
+    assert_select ".chart-card", 12
   end
 end
