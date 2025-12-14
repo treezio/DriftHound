@@ -26,7 +26,9 @@ DriftHound is a Rails WebApp that receives Terraform drift reports via API and p
 - **API for Drift Reports**: Receive Terraform drift check results via authenticated API
 - **Historical Data**: Store and track drift check history per project
 - **Project Status**: Display project status (OK / Drift / Error / Unknown)
-- **Web Dashboard**: View all projects and their drift status at a glance (coming soon)
+- **Web Dashboard**: View all projects and their drift status at a glance
+- **Charts Dashboard**: Visual analytics with interactive charts for drift monitoring
+- **Slack Notifications**: Real-time alerts when drift is detected or resolved
 
 ## Requirements
 
@@ -178,12 +180,6 @@ flowchart LR
     A["CI/CD (Terraform)"] --> B["DriftHound API"]
     B --> C["PostgreSQL (Storage)"]
 ```
-
-### TODO
-
-- Improve UNKNOWN status handling (slack notifications and error handling)
-- Checks History CleanUp strategy
-- Slack Notification State Update/Edit
 
 ## License
 
