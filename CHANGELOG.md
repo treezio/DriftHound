@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/treezio/DriftHound/compare/v0.3.0...v0.3.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* credentials check when executing assets precompilation ([#71](https://github.com/treezio/DriftHound/issues/71)) ([6b49f46](https://github.com/treezio/DriftHound/commit/6b49f467ed51ed0952a4ee81abc59f425ab40264))
+
 ## [0.3.0](https://github.com/treezio/DriftHound/compare/v0.2.12...v0.3.0) (2025-12-15)
 
 
