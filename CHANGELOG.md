@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.3.0](https://github.com/treezio/DriftHound/compare/v0.2.12...v0.3.0) (2025-12-15)
+
+
+### Features
+
+* admin login ([#61](https://github.com/treezio/DriftHound/issues/61)) ([a9062b9](https://github.com/treezio/DriftHound/commit/a9062b94250acf91dea8ec21b37c805cd5df9a19))
+* Configure data retention mechanism and policy ([#65](https://github.com/treezio/DriftHound/issues/65)) ([ef29c19](https://github.com/treezio/DriftHound/commit/ef29c1915d0edb6aa4c056555bec41fede35e3b8))
+* Dashboard charts ([#62](https://github.com/treezio/DriftHound/issues/62)) ([960a0e7](https://github.com/treezio/DriftHound/commit/960a0e7da4f2e37b1025b083cf5d2c1c86556052))
+* Enhance project and environment information ([#57](https://github.com/treezio/DriftHound/issues/57)) ([4c656f2](https://github.com/treezio/DriftHound/commit/4c656f2332dc246518a4a03f453ea53ac8cf25f9))
+* Improve UX looks and long names handling ([#59](https://github.com/treezio/DriftHound/issues/59)) ([a130288](https://github.com/treezio/DriftHound/commit/a13028840e6656b80ef808c1b9b06583ea8378ab))
+* Refactor seeding data into different tasks ([#66](https://github.com/treezio/DriftHound/issues/66)) ([61770e5](https://github.com/treezio/DriftHound/commit/61770e525a230e4674af91b09fa11faf6592a789))
+* Slack information GUI ([#60](https://github.com/treezio/DriftHound/issues/60)) ([e9df3f1](https://github.com/treezio/DriftHound/commit/e9df3f1cadb2c0b92e8430427c51a28f2ef6347e))
+
+
+### Bug Fixes
+
+* minor improvements and disable lock ([9616416](https://github.com/treezio/DriftHound/commit/9616416aa40cffa1592ae54db2abaf2622a19449))
+* smart history data backfill in seed file ([#63](https://github.com/treezio/DriftHound/issues/63)) ([6c0d53a](https://github.com/treezio/DriftHound/commit/6c0d53aa9ce8f321432f6b7021fde24623e21b83))
+* use -detailed-exitcode ([b245ea4](https://github.com/treezio/DriftHound/commit/b245ea4316a5787ab04e4843333c9b73fdd0482f))
+
 ## [0.2.12](https://github.com/treezio/DriftHound/compare/v0.2.11...v0.2.12) (2025-12-11)
 
 
