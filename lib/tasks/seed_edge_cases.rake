@@ -304,6 +304,76 @@ namespace :db do
       puts "  ✓ Created for testing nil value handling"
       puts ""
 
+      # Edge Case 9: Directory paths with ./ prefix
+      puts "Edge Case 9: Directory Paths with ./ Prefix"
+      puts "-" * 40
+
+      project_dotslash = Project.find_or_create_by!(key: "dotslash-directory-project") do |p|
+        p.name = "dotslash-directory-project"
+        p.repository = "https://github.com/acme/infrastructure"
+      end
+
+      env_dotslash = project_dotslash.environments.find_or_create_by!(key: "production") do |e|
+        e.name = "Production"
+        e.status = :ok
+        e.directory = "./automation/terraform/environments/production"
+      end
+      env_dotslash.update!(last_checked_at: 10.minutes.ago)
+
+      max_exec = env_dotslash.drift_checks.maximum(:execution_number) || 0
+      env_dotslash.drift_checks.find_or_create_by!(execution_number: max_exec + 1) do |c|
+        c.status = :ok
+        c.add_count = 0
+        c.change_count = 0
+        c.destroy_count = 0
+        c.duration = 45
+        c.raw_output = "No changes. Infrastructure matches code."
+        c.created_at = Time.current
+      end
+
+      puts "  Project: dotslash-directory-project"
+      puts "  Directory input: ./automation/terraform/environments/production"
+      puts "  Directory stored: #{env_dotslash.reload.directory}"
+      puts "  ✓ Created for testing ./ prefix stripping"
+      puts ""
+
+      # Edge Case 10: Repository URL with embedded credentials (should be sanitized)
+      puts "Edge Case 10: Repository URL with Credentials"
+      puts "-" * 40
+
+      project_creds = Project.find_or_create_by!(key: "credentials-url-project") do |p|
+        p.name = "credentials-url-project"
+        # This should be sanitized by the model's before_save callback
+        p.repository = "https://x-access-token:ghp_secret123@github.com/acme/private-repo"
+      end
+
+      env_creds = project_creds.environments.find_or_create_by!(key: "production") do |e|
+        e.name = "Production"
+        e.status = :ok
+        e.directory = "terraform/production"
+      end
+      env_creds.update!(last_checked_at: 5.minutes.ago)
+
+      max_exec = env_creds.drift_checks.maximum(:execution_number) || 0
+      env_creds.drift_checks.find_or_create_by!(execution_number: max_exec + 1) do |c|
+        c.status = :ok
+        c.add_count = 0
+        c.change_count = 0
+        c.destroy_count = 0
+        c.duration = 30
+        c.raw_output = "No changes. Infrastructure matches code."
+        c.created_at = Time.current
+      end
+
+      # Verify sanitization worked
+      project_creds.reload
+      sanitized = !project_creds.repository.include?("@")
+      puts "  Project: credentials-url-project"
+      puts "  Original: https://x-access-token:ghp_***@github.com/acme/private-repo"
+      puts "  Sanitized: #{project_creds.repository}"
+      puts "  ✓ #{sanitized ? 'Credentials removed successfully' : 'WARNING: Credentials NOT removed!'}"
+      puts ""
+
       # Summary
       puts "=" * 80
       puts "Edge Cases Summary"
@@ -318,9 +388,11 @@ namespace :db do
       puts "  6. Very long duration (2 hours)"
       puts "  7. Duplicate environment names across projects"
       puts "  8. Nil/null values"
+      puts "  9. Directory paths with ./ prefix (sanitization test)"
+      puts "  10. Repository URL with credentials (sanitization test)"
       puts ""
       puts "These scenarios help test UI overflow handling, data display,"
-      puts "and edge case resilience in the application."
+      puts "credential sanitization, and edge case resilience in the application."
       puts "=" * 80
     end
   end
