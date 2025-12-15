@@ -121,4 +121,36 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_in_delta 1.hour.ago, project.last_checked_at, 1.second
   end
+
+  test "sanitizes repository URL with embedded credentials on create" do
+    project = Project.create!(
+      name: "Test",
+      key: "test-sanitize",
+      repository: "https://x-access-token:ghp_secret123@github.com/org/repo"
+    )
+
+    assert_equal "https://github.com/org/repo", project.repository
+  end
+
+  test "sanitizes repository URL with embedded credentials on update" do
+    project = Project.create!(name: "Test", key: "test-sanitize-update")
+    project.update!(repository: "https://user:password@gitlab.com/org/repo.git")
+
+    assert_equal "https://gitlab.com/org/repo.git", project.repository
+  end
+
+  test "leaves clean repository URLs unchanged" do
+    project = Project.create!(
+      name: "Test",
+      key: "test-clean-url",
+      repository: "https://github.com/org/repo"
+    )
+
+    assert_equal "https://github.com/org/repo", project.repository
+  end
+
+  test "handles nil repository" do
+    project = Project.create!(name: "Test", key: "test-nil-repo", repository: nil)
+    assert_nil project.repository
+  end
 end

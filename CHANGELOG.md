@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/treezio/DriftHound/compare/v0.3.1...v0.3.2) (2025-12-15)
+
+
+### Bug Fixes
+
+* Sanitize repository input in both CLI and backend ([#73](https://github.com/treezio/DriftHound/issues/73)) ([11e54b4](https://github.com/treezio/DriftHound/commit/11e54b427a9fefed8a7463127116976b48e5010b))
+
 ## [0.3.1](https://github.com/treezio/DriftHound/compare/v0.3.0...v0.3.1) (2025-12-15)
 
 

@@ -6,6 +6,7 @@ class Project < ApplicationRecord
   validates :name, presence: true
   validates :key, presence: true, uniqueness: true, format: { with: /\A[a-z0-9_-]+\z/i, message: "only allows alphanumeric characters, dashes, and underscores" }
 
+  before_save :sanitize_repository_url
   after_create :setup_default_notification_channels
 
   def self.find_or_create_by_key(key)
@@ -32,6 +33,14 @@ class Project < ApplicationRecord
   end
 
   private
+
+  # Remove credentials from repository URLs to prevent token leakage
+  # Transforms: https://user:token@github.com/org/repo -> https://github.com/org/repo
+  def sanitize_repository_url
+    return if repository.blank?
+
+    self.repository = repository.gsub(%r{://[^@]+@}, "://")
+  end
 
   def setup_default_notification_channels
     notification_config = Rails.application.config.notifications
