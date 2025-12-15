@@ -40,7 +40,13 @@ class DriftCheck < ApplicationRecord
   end
 
   def enforce_retention_limit
-    excess_checks = environment.drift_checks.order(created_at: :desc).offset(10)
-    excess_checks.destroy_all if excess_checks.any?
+    retention_days = Rails.application.config.drift_check_retention_days
+
+    # Skip retention if disabled (0 days)
+    return if retention_days.zero?
+
+    cutoff_date = retention_days.days.ago
+    old_checks = environment.drift_checks.where("created_at < ?", cutoff_date)
+    old_checks.destroy_all if old_checks.any?
   end
 end

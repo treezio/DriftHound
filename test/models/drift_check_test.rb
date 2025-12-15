@@ -74,31 +74,98 @@ class DriftCheckTest < ActiveSupport::TestCase
     end
   end
 
-  test "enforces retention limit of 10 checks per environment" do
-    # Create 10 checks
-    10.times do |i|
-      @environment.drift_checks.create!(status: :ok, created_at: i.hours.ago)
-    end
+  test "enforces retention limit based on DRIFT_CHECK_RETENTION_DAYS" do
+    # Set retention to 30 days for test
+    Rails.application.config.drift_check_retention_days = 30
 
-    assert_equal 10, @environment.drift_checks.count
+    # Skip retention callback while creating historical data
+    DriftCheck.skip_callback(:create, :after, :enforce_retention_limit)
 
-    # Create 11th check - oldest should be deleted
+    # Create checks within retention period
+    @environment.drift_checks.create!(status: :ok, created_at: 10.days.ago)
+    @environment.drift_checks.create!(status: :ok, created_at: 20.days.ago)
+
+    # Create checks outside retention period
+    @environment.drift_checks.create!(status: :ok, created_at: 40.days.ago)
+    @environment.drift_checks.create!(status: :ok, created_at: 50.days.ago)
+
+    DriftCheck.set_callback(:create, :after, :enforce_retention_limit)
+
+    assert_equal 4, @environment.drift_checks.count
+
+    # Create new check - should delete checks older than 30 days
     @environment.drift_checks.create!(status: :drift)
 
-    assert_equal 10, @environment.drift_checks.count
-    assert @environment.drift_checks.order(created_at: :desc).first.drift?
+    assert_equal 3, @environment.drift_checks.count
+    # Verify oldest remaining check is within retention
+    oldest_check = @environment.drift_checks.order(:created_at).first
+    assert oldest_check.created_at > 30.days.ago
   end
 
   test "retention limit only affects same environment" do
+    Rails.application.config.drift_check_retention_days = 30
+
     other_environment = @project.environments.create!(name: "Staging", key: "staging")
 
-    10.times { @environment.drift_checks.create!(status: :ok) }
-    5.times { other_environment.drift_checks.create!(status: :ok) }
+    # Skip retention callback while creating historical data
+    DriftCheck.skip_callback(:create, :after, :enforce_retention_limit)
 
+    # Create checks for both environments, some outside retention
+    @environment.drift_checks.create!(status: :ok, created_at: 10.days.ago)
+    @environment.drift_checks.create!(status: :ok, created_at: 40.days.ago)
+    other_environment.drift_checks.create!(status: :ok, created_at: 10.days.ago)
+    other_environment.drift_checks.create!(status: :ok, created_at: 40.days.ago)
+
+    DriftCheck.set_callback(:create, :after, :enforce_retention_limit)
+
+    # Trigger retention on first environment
     @environment.drift_checks.create!(status: :drift)
 
-    assert_equal 10, @environment.drift_checks.count
-    assert_equal 5, other_environment.drift_checks.count
+    # First environment should have old check removed
+    assert_equal 2, @environment.drift_checks.count
+    # Other environment should still have both checks
+    assert_equal 2, other_environment.drift_checks.count
+  end
+
+  test "retention is disabled when DRIFT_CHECK_RETENTION_DAYS is 0" do
+    Rails.application.config.drift_check_retention_days = 0
+
+    # Skip retention callback while creating historical data
+    DriftCheck.skip_callback(:create, :after, :enforce_retention_limit)
+
+    # Create old checks
+    @environment.drift_checks.create!(status: :ok, created_at: 100.days.ago)
+    @environment.drift_checks.create!(status: :ok, created_at: 200.days.ago)
+    @environment.drift_checks.create!(status: :ok, created_at: 365.days.ago)
+
+    DriftCheck.set_callback(:create, :after, :enforce_retention_limit)
+
+    # Create new check - should NOT delete any checks
+    @environment.drift_checks.create!(status: :drift)
+
+    assert_equal 4, @environment.drift_checks.count
+  end
+
+  test "uses default retention of 90 days" do
+    # Reset to default
+    Rails.application.config.drift_check_retention_days = 90
+
+    # Skip retention callback while creating historical data
+    DriftCheck.skip_callback(:create, :after, :enforce_retention_limit)
+
+    # Create check within 90 days
+    @environment.drift_checks.create!(status: :ok, created_at: 60.days.ago)
+    # Create check outside 90 days
+    @environment.drift_checks.create!(status: :ok, created_at: 100.days.ago)
+
+    DriftCheck.set_callback(:create, :after, :enforce_retention_limit)
+
+    # Trigger retention
+    @environment.drift_checks.create!(status: :drift)
+
+    assert_equal 2, @environment.drift_checks.count
+    # Verify the 100-day-old check was deleted
+    assert_nil @environment.drift_checks.find_by("created_at < ?", 90.days.ago)
   end
 
   test "delegates project to environment" do
