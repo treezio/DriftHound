@@ -35,6 +35,13 @@ abort('Missing --api-url') unless opts[:api_url]
 
 dir = opts[:dir] || Dir.pwd
 
+# Remove credentials from repository URLs to prevent token leakage
+# Transforms: https://user:token@github.com/org/repo -> https://github.com/org/repo
+def sanitize_repository_url(url)
+  return url if url.nil? || url.empty?
+  url.gsub(%r{://[^@]+@}, '://')
+end
+
 # Auto-detect repository URL from git if not provided
 def detect_git_repository(dir)
   git_url = `git -C "#{dir}" remote get-url origin 2>/dev/null`.strip
@@ -52,8 +59,9 @@ def detect_git_repository(dir)
     git_url = git_url.sub('ssh://git@', 'https://')
   end
 
-  # Remove .git suffix
-  git_url.sub(/\.git$/, '')
+  # Remove .git suffix and sanitize credentials
+  git_url = git_url.sub(/\.git$/, '')
+  sanitize_repository_url(git_url)
 rescue
   nil
 end
@@ -74,6 +82,9 @@ unless opts[:repository]
     opts[:repository] = detected_repo
     puts "Auto-detected repository: #{detected_repo}"
   end
+else
+  # Sanitize manually provided repository URL
+  opts[:repository] = sanitize_repository_url(opts[:repository])
 end
 
 unless opts[:branch]
