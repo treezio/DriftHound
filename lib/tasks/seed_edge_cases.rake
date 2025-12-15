@@ -332,8 +332,9 @@ namespace :db do
       end
 
       puts "  Project: dotslash-directory-project"
-      puts "  Directory: ./automation/terraform/environments/production"
-      puts "  ✓ Created for testing ./ prefix stripping in URLs"
+      puts "  Directory input: ./automation/terraform/environments/production"
+      puts "  Directory stored: #{env_dotslash.reload.directory}"
+      puts "  ✓ Created for testing ./ prefix stripping"
       puts ""
 
       # Edge Case 10: Repository URL with embedded credentials (should be sanitized)
@@ -387,8 +388,8 @@ namespace :db do
       puts "  6. Very long duration (2 hours)"
       puts "  7. Duplicate environment names across projects"
       puts "  8. Nil/null values"
-      puts "  9. Directory paths with ./ prefix"
-      puts "  10. Repository URL with embedded credentials (sanitization test)"
+      puts "  9. Directory paths with ./ prefix (sanitization test)"
+      puts "  10. Repository URL with credentials (sanitization test)"
       puts ""
       puts "These scenarios help test UI overflow handling, data display,"
       puts "credential sanitization, and edge case resilience in the application."

@@ -103,4 +103,46 @@ class EnvironmentTest < ActiveSupport::TestCase
       environment.destroy
     end
   end
+
+  test "sanitizes directory path with single ./ prefix on create" do
+    environment = @project.environments.create!(
+      name: "Production",
+      key: "prod-sanitize",
+      directory: "./automation/terraform/production"
+    )
+
+    assert_equal "automation/terraform/production", environment.directory
+  end
+
+  test "sanitizes directory path with multiple ./ prefix on create" do
+    environment = @project.environments.create!(
+      name: "Production",
+      key: "prod-double-dot",
+      directory: "././automation/terraform/production"
+    )
+
+    assert_equal "automation/terraform/production", environment.directory
+  end
+
+  test "sanitizes directory path on update" do
+    environment = @project.environments.create!(name: "Production", key: "prod-update")
+    environment.update!(directory: "./path/to/terraform")
+
+    assert_equal "path/to/terraform", environment.directory
+  end
+
+  test "leaves clean directory paths unchanged" do
+    environment = @project.environments.create!(
+      name: "Production",
+      key: "prod-clean",
+      directory: "terraform/production"
+    )
+
+    assert_equal "terraform/production", environment.directory
+  end
+
+  test "handles nil directory" do
+    environment = @project.environments.create!(name: "Production", key: "prod-nil", directory: nil)
+    assert_nil environment.directory
+  end
 end

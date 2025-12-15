@@ -21,10 +21,19 @@ class Environment < ApplicationRecord
                   uniqueness: { scope: :project_id },
                   format: { with: /\A[a-z0-9_-]+\z/i, message: "only allows alphanumeric characters, dashes, and underscores" }
 
+  before_save :sanitize_directory_path
   # Trigger notifications when status changes
   after_update :notify_status_change, if: :saved_change_to_status?
 
   private
+
+  # Clean directory path by removing leading ./ or multiple ./
+  # Transforms: ./path or ././path -> path
+  def sanitize_directory_path
+    return if directory.blank?
+
+    self.directory = directory.gsub(%r{^(\./)+}, "")
+  end
 
   def notify_status_change
     old_status = status_before_last_save
