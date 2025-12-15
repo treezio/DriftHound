@@ -31,27 +31,27 @@ namespace :db do
         { project: "payment-api", environments: [
           { name: "Production", key: "production", status: :ok },
           { name: "Staging", key: "staging", status: :drift }
-        ]},
+        ] },
         { project: "user-service", environments: [
           { name: "Production", key: "production", status: :ok }
-        ]},
+        ] },
         { project: "web-frontend", environments: [
           { name: "Production", key: "production", status: :drift },
           { name: "Staging", key: "staging", status: :ok }
-        ]},
+        ] },
         { project: "analytics-pipeline", environments: [
           { name: "Production", key: "production", status: :ok }
-        ]},
+        ] },
         { project: "notification-service", environments: [
           { name: "Production", key: "production", status: :error }
-        ]},
+        ] },
         { project: "inventory-api", environments: [
           { name: "Production", key: "production", status: :ok }
-        ]},
+        ] },
         { project: "auth-gateway", environments: [
           { name: "Production", key: "production", status: :ok },
           { name: "Staging", key: "staging", status: :drift }
-        ]}
+        ] }
       ]
 
       puts "Creating projects and environments..."
@@ -77,10 +77,10 @@ namespace :db do
           generate_demo_history(env, env_data[:status], 60)
 
           status_icon = case env_data[:status]
-                        when :ok then "✓"
-                        when :drift then "~"
-                        when :error then "✗"
-                        end
+          when :ok then "✓"
+          when :drift then "~"
+          when :error then "✗"
+          end
 
           puts "  #{status_icon} #{project.name}/#{env.name} (#{env_data[:status]})"
         end
@@ -114,20 +114,20 @@ def generate_demo_history(env, current_status, days = 30)
     next if days_ago > 0 && rand < 0.1
 
     # Number of checks for this day (1-2, occasionally 3)
-    checks_per_day = days_ago == 0 ? 1 : [1, 1, 1, 2, 2, 3].sample
+    checks_per_day = days_ago == 0 ? 1 : [ 1, 1, 1, 2, 2, 3 ].sample
 
     checks_per_day.times do |check_idx|
       # Determine status for this check
       status = if days_ago == 0
                  current_status
-               else
+      else
                  # Historical data: mostly OK, occasional drift
                  case rand(100)
                  when 0..72 then :ok
                  when 73..88 then :drift
                  else :error
                  end
-               end
+      end
 
       # Generate check attributes with spread throughout the day
       base_hour = 8 + (check_idx * 4) # Spread checks: 8am, 12pm, 4pm
