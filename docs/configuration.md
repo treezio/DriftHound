@@ -7,6 +7,7 @@ DriftHound can be configured using environment variables for deployment flexibil
 - [Application Settings](#application-settings)
 - [Admin Authentication](#admin-authentication)
 - [Database Configuration](#database-configuration)
+- [Data Retention](#data-retention)
 - [Slack Notifications](#slack-notifications)
 - [Web Server Settings](#web-server-settings)
 - [Logging Configuration](#logging-configuration)
@@ -206,6 +207,56 @@ Database settings are defined in [config/database.yml](../config/database.yml):
 
 **Note:** DriftHound uses in-memory adapters for caching and background jobs. This keeps the setup simple and is sufficient for low to medium traffic applications. Only one database is needed.
 
+## Data Retention
+
+DriftHound automatically manages drift check data retention to prevent unbounded database growth while maintaining sufficient historical data for trend analysis and charts.
+
+### DRIFT_CHECK_RETENTION_DAYS
+
+Number of days to retain drift check history per environment.
+
+**Required:** No
+**Default:** `90`
+**Example:**
+
+```bash
+DRIFT_CHECK_RETENTION_DAYS=90
+```
+
+**Behavior:**
+- Drift checks older than this number of days are automatically deleted when new checks are created
+- Retention is enforced per-environment (each environment maintains its own history)
+- Set to `0` to disable retention and keep all checks indefinitely
+
+**Recommended values based on check frequency:**
+
+| Check Frequency | Recommended Retention | Approximate Checks/Env |
+|-----------------|----------------------|------------------------|
+| Multiple per day | 30-60 days | 120-240+ checks |
+| Once daily | 90 days (default) | ~90 checks |
+| Weekly | 180-365 days | 26-52 checks |
+
+**Storage considerations:**
+- Each drift check consumes approximately 1-2 KB of database storage
+- With 100 environments running daily checks at 90-day retention: ~9,000 checks (~18 MB)
+- Adjust based on your number of environments and check frequency
+
+**Example configurations:**
+
+```bash
+# Default: 90 days (recommended for most users)
+DRIFT_CHECK_RETENTION_DAYS=90
+
+# Short retention for high-frequency checking
+DRIFT_CHECK_RETENTION_DAYS=30
+
+# Long retention for weekly checks
+DRIFT_CHECK_RETENTION_DAYS=365
+
+# Disable retention (keep all checks forever)
+DRIFT_CHECK_RETENTION_DAYS=0
+```
+
 ## Slack Notifications
 
 DriftHound can send Slack notifications when drift is detected. Configuration can be done via environment variables or [config/notifications.yml](../config/notifications.yml).
@@ -383,6 +434,9 @@ ADMIN_PASSWORD=your-secure-admin-password
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password
+
+# Data Retention
+DRIFT_CHECK_RETENTION_DAYS=90
 
 # Slack Notifications
 SLACK_NOTIFICATIONS_ENABLED=true
