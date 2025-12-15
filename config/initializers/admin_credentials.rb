@@ -10,7 +10,8 @@
 # Or in Rails console:
 #   User.create!(email: 'your@email.com', password: 'secure_password', admin: true)
 
-if Rails.env.production?
+# Skip this check during asset precompilation (when SECRET_KEY_BASE_DUMMY is set)
+if Rails.env.production? && !ENV["SECRET_KEY_BASE_DUMMY"]
   admin_email = ENV["ADMIN_EMAIL"]
   admin_password = ENV["ADMIN_PASSWORD"]
 
