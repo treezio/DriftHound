@@ -50,7 +50,13 @@
         </div>
         <div class="nav-right">
           <% if logged_in? %>
-            <span class="nav-user"><%= current_user.email %></span>
+            <% if current_user.admin? %>
+              <%= link_to "Users", users_path, class: "nav-link" %>
+            <% end %>
+            <span class="nav-user">
+              <%= current_user.email %>
+              <span class="role-badge role-badge--<%= current_user.role %> role-badge--sm"><%= current_user.role.humanize %></span>
+            </span>
             <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-secondary btn-sm" %>
           <% else %>
             <%= link_to "Login", login_path, class: "btn btn-secondary btn-sm" %>

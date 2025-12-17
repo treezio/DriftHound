@@ -5,10 +5,10 @@
 #   ADMIN_PASSWORD - Password for the admin user
 #
 # Then create the admin user by running:
-#   ADMIN_EMAIL=your@email.com ADMIN_PASSWORD=secure_password rails runner "User.create!(email: ENV['ADMIN_EMAIL'], password: ENV['ADMIN_PASSWORD'], admin: true)"
+#   ADMIN_EMAIL=your@email.com ADMIN_PASSWORD=secure_password rails runner "User.create!(email: ENV['ADMIN_EMAIL'], password: ENV['ADMIN_PASSWORD'], role: :admin)"
 #
 # Or in Rails console:
-#   User.create!(email: 'your@email.com', password: 'secure_password', admin: true)
+#   User.create!(email: 'your@email.com', password: 'secure_password', role: :admin)
 
 # Skip this check during asset precompilation (when SECRET_KEY_BASE_DUMMY is set)
 if Rails.env.production? && !ENV["SECRET_KEY_BASE_DUMMY"]
@@ -30,7 +30,7 @@ if Rails.env.production? && !ENV["SECRET_KEY_BASE_DUMMY"]
       ║                                                                            ║
       ║    rails runner "User.find_or_create_by!(email: ENV['ADMIN_EMAIL']) do |u| ║
       ║      u.password = ENV['ADMIN_PASSWORD']                                    ║
-      ║      u.admin = true                                                        ║
+      ║      u.role = :admin                                                       ║
       ║    end"                                                                    ║
       ║                                                                            ║
       ╚════════════════════════════════════════════════════════════════════════════╝

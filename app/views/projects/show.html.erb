@@ -20,7 +20,7 @@
         <% end %>
       </div>
     </div>
-    <% if @project.repository.present? || @slack_channel.present? || logged_in? %>
+    <% if @project.repository.present? || @slack_channel.present? || policy(@project).destroy? %>
       <div class="summary-bottom">
         <div class="summary-bottom-left">
           <% if @project.repository.present? %>
@@ -44,7 +44,7 @@
             </span>
           <% end %>
         </div>
-        <% if logged_in? %>
+        <% if policy(@project).destroy? %>
           <div class="summary-bottom-right">
             <button type="button" class="btn btn-danger-outline btn-sm" data-action="click->modal#open">Delete Project</button>
           </div>

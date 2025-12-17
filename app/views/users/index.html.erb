@@ -1,0 +1,51 @@
+<div class="users-management">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>User Management</h1>
+      <p class="header-subtitle">Manage users and their roles</p>
+    </div>
+    <div class="header-actions">
+      <%= link_to "Add User", new_user_path, class: "btn btn-primary" %>
+    </div>
+  </header>
+
+  <section class="users-list">
+    <% if @users.empty? %>
+      <div class="empty-state">
+        <p>No users found.</p>
+      </div>
+    <% else %>
+      <div class="users-table">
+        <div class="users-header">
+          <span>Email</span>
+          <span>Role</span>
+          <span>Created</span>
+          <span style="text-align: right;">Actions</span>
+        </div>
+
+        <% @users.each do |user| %>
+          <div class="user-row">
+            <span class="col-email">
+              <%= user.email %>
+              <% if user == current_user %>
+                <span class="badge badge-info">You</span>
+              <% end %>
+            </span>
+            <span class="col-role">
+              <span class="role-badge role-badge--<%= user.role %>"><%= user.role.humanize %></span>
+            </span>
+            <span class="col-created">
+              <%= user.created_at.strftime("%b %d, %Y") %>
+            </span>
+            <span class="col-actions">
+              <%= link_to "Edit", edit_user_path(user), class: "btn btn-secondary btn-sm" %>
+              <% unless user == current_user %>
+                <%= button_to "Delete", user_path(user), method: :delete, class: "btn btn-danger-outline btn-sm", data: { turbo_confirm: "Are you sure you want to delete #{user.email}?" } %>
+              <% end %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+</div>

@@ -17,7 +17,7 @@
 if ENV["ADMIN_EMAIL"].present? && ENV["ADMIN_PASSWORD"].present?
   admin = User.find_or_initialize_by(email: ENV["ADMIN_EMAIL"])
   admin.password = ENV["ADMIN_PASSWORD"]
-  admin.admin = true
+  admin.role = :admin
 
   if admin.new_record?
     admin.save!

@@ -21,6 +21,9 @@ Rails.application.routes.draw do
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
 
+  # User management (admin only)
+  resources :users, except: [ :show ]
+
   # Dashboard routes
   root "dashboard#index"
   get "projects/:key", to: "projects#show", as: :project

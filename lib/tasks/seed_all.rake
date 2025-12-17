@@ -81,9 +81,9 @@ namespace :db do
       puts ""
 
       # Create admin user
-      admin_email = ENV.fetch("ADMIN_EMAIL", "admin")
-      admin_password = ENV.fetch("ADMIN_PASSWORD", "changeme")
-      User.create!(email: admin_email, password: admin_password, admin: true)
+      admin_email = ENV.fetch("ADMIN_EMAIL", "admin@local.dev")
+      admin_password = ENV.fetch("ADMIN_PASSWORD", "admin123!")
+      User.create!(email: admin_email, password: admin_password, role: :admin)
       puts "✓ Admin user created: #{admin_email} / #{admin_password}"
       puts ""
 
