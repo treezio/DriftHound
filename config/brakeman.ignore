@@ -1,0 +1,14 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "3983ab100b32af481f4ea42e00560b35e33221c3cf7950aaee60242acf54ee34",
+      "note": "Role assignment in UsersController is protected by Pundit authorization. Only admins can access this action (UserPolicy#update? checks current_user.admin?). The role parameter is intentionally permitted for admin user management."
+    },
+    {
+      "fingerprint": "ff5907aff04375c8d8655133aa0484708d8e2c77f53c4da771bdb49c6c083e93",
+      "note": "Role assignment in InvitesController is protected by Pundit authorization. Only admins can create invites (InvitePolicy#create? checks current_user.admin?). The role parameter determines the role assigned to the invited user."
+    }
+  ],
+  "updated": "2025-12-19",
+  "brakeman_version": "7.1.1"
+}
