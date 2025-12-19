@@ -47,10 +47,19 @@
             <img src="/drifthound_logo.png" alt="DriftHound" class="nav-logo">
             <span>DriftHound</span>
           <% end %>
+          <% if logged_in? && current_user.admin? %>
+            <%= link_to users_path, class: "nav-link nav-link-left" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Users
+            <% end %>
+          <% end %>
         </div>
         <div class="nav-right">
           <% if logged_in? %>
-            <span class="nav-user"><%= current_user.email %></span>
+            <span class="nav-user">
+              <%= current_user.email %>
+              <span class="role-badge role-badge--<%= current_user.role %> role-badge--sm"><%= current_user.role.humanize %></span>
+            </span>
             <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-secondary btn-sm" %>
           <% else %>
             <%= link_to "Login", login_path, class: "btn btn-secondary btn-sm" %>

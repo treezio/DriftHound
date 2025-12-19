@@ -21,6 +21,16 @@ Rails.application.routes.draw do
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
 
+  # Registration via invite
+  get "register/:token", to: "registrations#new", as: :register
+  post "register/:token", to: "registrations#create"
+
+  # User management (admin only)
+  resources :users, except: [ :show ]
+
+  # Invite management (admin only)
+  resources :invites, only: [ :create, :destroy ]
+
   # Dashboard routes
   root "dashboard#index"
   get "projects/:key", to: "projects#show", as: :project

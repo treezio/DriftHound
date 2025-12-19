@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_13_193459) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_17_225443) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_193459) do
     t.index ["status"], name: "index_environments_on_status"
   end
 
+  create_table "invites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.string "email", null: false
+    t.datetime "expires_at", null: false
+    t.integer "role", default: 0, null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "used_at"
+    t.index ["created_by_id"], name: "index_invites_on_created_by_id"
+    t.index ["email"], name: "index_invites_on_email"
+    t.index ["token"], name: "index_invites_on_token", unique: true
+  end
+
   create_table "notification_channels", force: :cascade do |t|
     t.string "channel_type", null: false
     t.jsonb "config", default: {}
@@ -88,15 +102,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_193459) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.boolean "admin", default: false, null: false
     t.datetime "created_at", null: false
     t.string "email"
     t.string "password_digest"
+    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "drift_checks", "environments"
   add_foreign_key "environments", "projects"
+  add_foreign_key "invites", "users", column: "created_by_id"
   add_foreign_key "notification_states", "environments"
 end

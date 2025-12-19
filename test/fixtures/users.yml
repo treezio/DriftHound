@@ -2,10 +2,20 @@
 
 admin:
   email: admin@example.com
-  password_digest: <%= BCrypt::Password.create('password123') %>
-  admin: true
+  password_digest: <%= BCrypt::Password.create('testpass1') %>
+  role: 2  # admin
+
+editor:
+  email: editor@example.com
+  password_digest: <%= BCrypt::Password.create('testpass1') %>
+  role: 1  # editor
+
+viewer:
+  email: viewer@example.com
+  password_digest: <%= BCrypt::Password.create('testpass1') %>
+  role: 0  # viewer
 
 regular_user:
   email: user@example.com
-  password_digest: <%= BCrypt::Password.create('password123') %>
-  admin: false
+  password_digest: <%= BCrypt::Password.create('testpass1') %>
+  role: 0  # viewer

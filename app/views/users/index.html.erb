@@ -1,0 +1,105 @@
+<div class="users-management">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>User Management</h1>
+      <p class="header-subtitle">Manage users and invite new members</p>
+    </div>
+  </header>
+
+  <section class="invites-section">
+    <div class="section-header">
+      <h2>Invite New User</h2>
+    </div>
+
+    <div class="invite-form-inline">
+      <%= form_with model: @new_invite, url: invites_path, class: "inline-form" do |form| %>
+        <div class="form-row-inline">
+          <span class="inline-label">Email:</span>
+          <%= form.email_field :email, class: "form-control form-control-inline", placeholder: "user@example.com" %>
+          <span class="inline-label">Role:</span>
+          <%= form.select :role, Invite.roles.keys.map { |r| [r.humanize, r] }, {}, class: "form-control form-control-inline form-control-role" %>
+          <%= form.submit "Invite", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @invites.any? %>
+      <div class="invites-list">
+        <h3>Pending Invites</h3>
+        <div class="invites-table">
+          <div class="invites-header">
+            <span>Email</span>
+            <span>Role</span>
+            <span>Expires</span>
+            <span>Invite Link</span>
+            <span style="text-align: right;">Actions</span>
+          </div>
+
+          <% @invites.each do |invite| %>
+            <div class="invite-row">
+              <span class="col-email">
+                <%= invite.email %>
+              </span>
+              <span class="col-role">
+                <span class="role-badge role-badge--<%= invite.role %>"><%= invite.role.humanize %></span>
+              </span>
+              <span class="col-expires">
+                <%= time_ago_in_words(invite.expires_at) %> left
+              </span>
+              <span class="col-link">
+                <button type="button" class="btn btn-secondary btn-xs copy-btn" data-clipboard="<%= register_url(token: invite.token) %>" onclick="navigator.clipboard.writeText(this.dataset.clipboard); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000)">Copy Link</button>
+              </span>
+              <span class="col-actions">
+                <%= button_to "Delete", invite_path(invite), method: :delete, class: "btn btn-danger-outline btn-sm", data: { turbo_confirm: "Are you sure you want to delete this invite for #{invite.email}?" } %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="users-list">
+    <div class="section-header">
+      <h2>Users</h2>
+    </div>
+
+    <% if @users.empty? %>
+      <div class="empty-state">
+        <p>No users found.</p>
+      </div>
+    <% else %>
+      <div class="users-table">
+        <div class="users-header">
+          <span>Email</span>
+          <span>Role</span>
+          <span>Created</span>
+          <span style="text-align: right;">Actions</span>
+        </div>
+
+        <% @users.each do |user| %>
+          <div class="user-row">
+            <span class="col-email">
+              <%= user.email %>
+              <% if user == current_user %>
+                <span class="badge badge-info">You</span>
+              <% end %>
+            </span>
+            <span class="col-role">
+              <span class="role-badge role-badge--<%= user.role %>"><%= user.role.humanize %></span>
+            </span>
+            <span class="col-created">
+              <%= user.created_at.strftime("%b %d, %Y") %>
+            </span>
+            <span class="col-actions">
+              <%= link_to "Edit", edit_user_path(user), class: "btn btn-secondary btn-sm" %>
+              <% unless user == current_user %>
+                <%= button_to "Delete", user_path(user), method: :delete, class: "btn btn-danger-outline btn-sm", data: { turbo_confirm: "Are you sure you want to delete #{user.email}?" } %>
+              <% end %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+</div>

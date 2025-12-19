@@ -18,7 +18,7 @@ namespace :db do
       User.delete_all
 
       # Create admin user
-      User.create!(email: "admin@drifthound.io", password: "demo1234", admin: true)
+      User.create!(email: "admin@drifthound.io", password: "demo1234", role: :admin)
       puts "Admin user created: admin@drifthound.io"
 
       # Create API token

@@ -1,0 +1,44 @@
+<%= form_with model: @user, class: "user-form" do |f| %>
+  <% if @user.errors.any? %>
+    <div class="form-errors">
+      <h3>Please fix the following:</h3>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :email %>
+    <%= f.email_field :email, required: true, autofocus: true, placeholder: "user@example.com" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :password %>
+    <%= f.password_field :password, placeholder: @user.new_record? ? "Enter password" : "Leave blank to keep current" %>
+    <span class="form-hint">
+      <% if @user.new_record? %>
+        Min 8 characters, at least 1 letter and 1 number
+      <% else %>
+        Leave blank to keep current password
+      <% end %>
+    </span>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :password_confirmation %>
+    <%= f.password_field :password_confirmation, placeholder: "Confirm password" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :role %>
+    <%= f.select :role, User.roles.keys.map { |r| [r.humanize, r] }, {}, class: "form-select" %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit @user.new_record? ? "Create User" : "Update User", class: "btn btn-primary" %>
+    <%= link_to "Cancel", users_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
