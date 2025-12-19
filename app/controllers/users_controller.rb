@@ -5,6 +5,8 @@ class UsersController < ApplicationController
   def index
     authorize User
     @users = policy_scope(User).order(:email)
+    @invites = Invite.available.includes(:created_by).order(created_at: :desc)
+    @new_invite = Invite.new
   end
 
   def new
