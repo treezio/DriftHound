@@ -9,17 +9,20 @@
 <img src="./docs/media/drifthound.png" alt="logo" width="500" />
 </div>
 <br>
-<p align="center">
-  <a href="https://github.com/treezio/DriftHound/actions/workflows/ci.yml">
-    <img src="https://github.com/treezio/DriftHound/actions/workflows/ci.yml/badge.svg?branch=main" alt="Build Status">
-  </a>
-  <a href="https://github.com/treezio/DriftHound/blob/main/.ruby-version">
-    <img src="https://img.shields.io/badge/ruby-3.4.6-red" alt="Ruby">
-  </a>
+<div align="center">
+
+  ![Ruby](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/drifthoundhq/drifthound/main/.ruby-version&search=ruby-(.*)&label=Ruby&logo=ruby&logoColor=red&color=CC342D&style=for-the-badge)
+  ![Build](https://img.shields.io/github/actions/workflow/status/drifthoundhq/drifthound/ci.yml?branch=main&style=for-the-badge&logo=github&label=Build)
+  ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/drifthoundhq/drifthound?style=for-the-badge&color=blue)
+  [![Demo](https://img.shields.io/badge/Demo-Try%20It-10b981?style=for-the-badge&logo=rocket&logoColor=white)](https://demo.drifthound.io)
+  [![License](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](https://opensource.org/licenses/AGPL-3.0)
+  </div>
 </p>
 
 ## What is DriftHound?
 DriftHound is a Rails WebApp that receives Terraform drift reports via API and provides visibility into infrastructure drift across your projects.
+
+Live demo site: https://demo.drifthound.io
 
 ## Features
 
