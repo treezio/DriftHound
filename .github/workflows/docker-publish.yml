@@ -33,4 +33,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/treezio/drifthound:${{ env.RELEASE_TAG }}
+          tags: ghcr.io/drifthoundhq/drifthound:${{ env.RELEASE_TAG }}
