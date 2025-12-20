@@ -1,0 +1,99 @@
+<div class="api-tokens-management">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>API Tokens</h1>
+      <p class="header-subtitle">Manage API tokens for drift check reporting</p>
+    </div>
+  </header>
+
+  <section class="create-token-section">
+    <div class="section-header">
+      <h2>Create New Token</h2>
+    </div>
+
+    <div class="token-form-inline">
+      <%= form_with model: @new_api_token, url: api_tokens_path, class: "inline-form" do |form| %>
+        <div class="form-row-inline">
+          <span class="inline-label">Name:</span>
+          <%= form.text_field :name, class: "form-control form-control-inline", placeholder: "e.g., CI/CD Pipeline" %>
+          <%= form.submit "Create Token", class: "btn btn-primary" %>
+        </div>
+        <% if @new_api_token.errors.any? %>
+          <div class="form-errors-inline">
+            <% @new_api_token.errors.full_messages.each do |message| %>
+              <span class="error-message"><%= message %></span>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <% if flash[:token_value].present? %>
+    <section class="new-token-display">
+      <div class="token-created-banner">
+        <div class="banner-icon">!</div>
+        <div class="banner-content">
+          <h3>New API Token Created</h3>
+          <p>Copy this token now. You won't be able to see it again!</p>
+          <div class="token-value-container">
+            <code class="token-value" id="new-token-value"><%= flash[:token_value] %></code>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('new-token-value').textContent); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000)">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="tokens-list">
+    <div class="section-header">
+      <h2>Existing Tokens</h2>
+    </div>
+
+    <% if @api_tokens.empty? %>
+      <div class="empty-state">
+        <p>No API tokens yet.</p>
+        <p class="hint">Create a token to start reporting drift checks via the API.</p>
+      </div>
+    <% else %>
+      <div class="tokens-table">
+        <div class="tokens-header">
+          <span>Name</span>
+          <span>Token</span>
+          <span>Created</span>
+          <span style="text-align: right;">Actions</span>
+        </div>
+
+        <% @api_tokens.each do |token| %>
+          <div class="token-row">
+            <span class="col-name">
+              <%= token.name %>
+            </span>
+            <span class="col-token">
+              <code class="token-preview"><%= token.token.first(8) %>...<%= token.token.last(4) %></code>
+            </span>
+            <span class="col-created">
+              <%= token.created_at.strftime("%b %d, %Y") %>
+            </span>
+            <span class="col-actions">
+              <%= button_to "Delete", api_token_path(token), method: :delete, class: "btn btn-danger-outline btn-sm", data: { turbo_confirm: "Are you sure you want to delete the token '#{token.name}'? Any systems using this token will lose access." } %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="usage-guide">
+    <div class="section-header">
+      <h2>Usage</h2>
+    </div>
+    <div class="guide-card">
+      <p>Use your API token in the <code>Authorization</code> header:</p>
+      <pre><code>curl -X POST "<%= api_v1_environment_checks_url(project_key: 'PROJECT_KEY', environment_key: 'ENV_KEY') %>" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "ok", "add_count": 0, "change_count": 0, "destroy_count": 0}'</code></pre>
+    </div>
+  </section>
+</div>

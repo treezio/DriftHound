@@ -128,9 +128,10 @@ curl -X POST \
 ```
 
 **Generate an API Token:**
-```bash
-bin/rails api_tokens:generate[token-name]
-```
+
+1. Log in as admin at `/login`
+2. Click **API Tokens** in the navigation bar
+3. Create a new token and copy it (it's only shown once!)
 
 📖 See [docs/api-usage.md](docs/api-usage.md) for complete API documentation, including advanced features and examples.
 

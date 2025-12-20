@@ -465,8 +465,10 @@ Should return `200 OK`.
 ### Test API Authentication
 
 ```bash
-# Generate a test token
-bin/rails api_tokens:generate[test]
+# Create a token via the web UI:
+# 1. Log in as admin at /login
+# 2. Navigate to API Tokens in the navigation bar
+# 3. Create a new token and copy it
 
 # Test API call
 curl -X POST http://localhost:3000/api/v1/projects/test/environments/dev/checks \

@@ -133,27 +133,27 @@ curl -X POST \
 
 ## API Token Management
 
-DriftHound uses rake tasks to manage API tokens:
+DriftHound provides a web-based interface for managing API tokens. Only admin users can create and manage tokens.
 
-### Generate a New Token
+### Using the Web UI (Recommended)
 
-```bash
-bin/rails api_tokens:generate[token-name]
-```
+1. Log in as an admin user
+2. Click **API Tokens** in the navigation bar
+3. Enter a name for your token (e.g., "CI/CD Pipeline") and click **Create Token**
+4. **Important:** Copy the token immediately - it will only be shown once!
 
-This will create a new token and display it in the console. Save it securely - you won't be able to retrieve it again.
+The API Tokens page also displays:
+- A list of all existing tokens with partial token previews
+- Creation dates for each token
+- Delete buttons to revoke tokens
+- Usage examples showing how to authenticate API requests
 
-### List All Tokens
+### Token Security
 
-```bash
-bin/rails api_tokens:list
-```
-
-### Revoke a Token
-
-```bash
-bin/rails api_tokens:revoke[TOKEN_ID]
-```
+- Tokens are only displayed once at creation time
+- Store tokens securely (e.g., in CI/CD secrets, environment variables)
+- Use descriptive names to identify token purposes
+- Revoke tokens that are no longer needed
 
 ## Health Check Endpoint
 
