@@ -9,7 +9,7 @@ DriftHound provides a Ruby CLI to automate drift checks and report results to th
 You can install the CLI directly without cloning the repo:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/treezio/DriftHound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
+sudo curl -L https://raw.githubusercontent.com/drifthoundhq/drifthound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
 ```
 
 This will make the `drifthound` command available globally.
@@ -22,7 +22,7 @@ You can also run the CLI directly from the published Docker image, without insta
 docker run --rm \
   -v "$(pwd)":/infra \
   -w /infra \
-  ghcr.io/treezio/drifthound:<tag> \
+  ghcr.io/drifthoundhq/drifthound:<tag> \
   bin/drifthound-cli --tool=terraform|terragrunt|opentofu \
     --project=PROJECT_KEY \
     --environment=ENV_KEY \
@@ -56,7 +56,7 @@ drifthound --tool=terragrunt --project=shipping --environment=production \
 ### Docker Example
 
 ```sh
-docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/treezio/drifthound:v0.1.0 \
+docker run --rm -v "$(pwd)":/infra -w /infra ghcr.io/drifthoundhq/drifthound:v0.1.0 \
   bin/drifthound-cli --tool=terragrunt --project=shipping --environment=production \
   --token=YOUR_API_TOKEN --api-url=http://localhost:3000 --dir=.
 ```

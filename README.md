@@ -93,7 +93,7 @@ DriftHound provides a CLI to automate drift checks in CI/CD pipelines.
 ### Quick Install
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/treezio/DriftHound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
+sudo curl -L https://raw.githubusercontent.com/drifthoundhq/drifthound/main/bin/drifthound-cli -o /usr/local/bin/drifthound && sudo chmod +x /usr/local/bin/drifthound
 ```
 
 ### Usage Example
@@ -144,7 +144,7 @@ curl -X POST \
 
 Automate drift detection in your GitHub workflows with the official DriftHound GitHub Action.
 
-🔄 **GitHub Action**: [https://github.com/treezio/drifthound-action](https://github.com/treezio/drifthound-action)
+🔄 **GitHub Action**: [https://github.com/drifthoundhq/drifthound-action](https://github.com/drifthoundhq/drifthound-action)
 
 ---
 
@@ -157,14 +157,14 @@ DriftHound can be deployed to production environments using Docker and Kubernete
 Pre-built Docker images are available in the GitHub Container Registry:
 
 ```bash
-docker pull ghcr.io/treezio/drifthound:latest
+docker pull ghcr.io/drifthoundhq/drifthound:latest
 ```
 
 ### Kubernetes Deployment
 
 A Helm chart is available for deploying DriftHound to Kubernetes clusters:
 
-📦 **Helm Chart Repository**: [https://github.com/treezio/helm-chart-drifthound/](https://github.com/treezio/helm-chart-drifthound/)
+📦 **Helm Chart Repository**: [https://github.com/drifthoundhq/helm-chart/](https://github.com/drifthoundhq/helm-chart/)
 
 For deployment instructions and configuration options, refer to the Helm chart documentation.
 
