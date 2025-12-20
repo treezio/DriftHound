@@ -31,6 +31,9 @@ Rails.application.routes.draw do
   # Invite management (admin only)
   resources :invites, only: [ :create, :destroy ]
 
+  # API token management (admin only)
+  resources :api_tokens, only: [ :index, :create, :destroy ]
+
   # Dashboard routes
   root "dashboard#index"
   get "projects/:key", to: "projects#show", as: :project
