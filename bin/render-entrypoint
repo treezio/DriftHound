@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[render-start] Migrating..."
+bundle exec rails db:migrate
+
+echo "[render-start] Starting puma..."
+bundle exec puma -C config/puma.rb
