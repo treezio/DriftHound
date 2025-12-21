@@ -2,9 +2,16 @@ require "application_system_test_case"
 
 class DashboardViewsTest < ApplicationSystemTestCase
   def setup
+    # Enable public mode for system tests (these test functionality, not auth)
+    Rails.application.config.public_mode = true
+
     @project = Project.create!(name: "ViewTest Project", key: "viewtest-project")
     @env = @project.environments.create!(name: "Production", key: "production", status: :drift)
     @env.drift_checks.create!(status: :drift, add_count: 2, change_count: 1, destroy_count: 0, raw_output: "Plan: 2 to add, 1 to change, 0 to destroy.")
+  end
+
+  def teardown
+    Rails.application.config.public_mode = false
   end
 
   test "dashboard displays project and environment" do
