@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_17_225443) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_19_171521) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -105,9 +105,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_225443) do
     t.datetime "created_at", null: false
     t.string "email"
     t.string "password_digest"
+    t.string "provider"
     t.integer "role", default: 0, null: false
+    t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true, where: "(provider IS NOT NULL)"
   end
 
   add_foreign_key "drift_checks", "environments"

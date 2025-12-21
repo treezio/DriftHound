@@ -6,6 +6,7 @@ DriftHound can be configured using environment variables for deployment flexibil
 
 - [Application Settings](#application-settings)
 - [Admin Authentication](#admin-authentication)
+- [GitHub OAuth Authentication](#github-oauth-authentication)
 - [Database Configuration](#database-configuration)
 - [Data Retention](#data-retention)
 - [Slack Notifications](#slack-notifications)
@@ -149,6 +150,83 @@ Read-only operations (viewing dashboard, projects, environments, drift history) 
 ### Logging In
 
 Access the login page at `/login`. After successful authentication, you'll be redirected to the dashboard with access to admin actions.
+
+## GitHub OAuth Authentication
+
+DriftHound supports GitHub OAuth for team-based authentication. Users can sign in with their GitHub account and be automatically assigned roles based on their GitHub team membership.
+
+### Enabling GitHub OAuth
+
+Set the following environment variables to enable GitHub OAuth:
+
+```bash
+GITHUB_OAUTH_ENABLED=true
+GITHUB_CLIENT_ID=your-github-app-client-id
+GITHUB_CLIENT_SECRET=your-github-app-client-secret
+GITHUB_ORG=your-organization-name
+```
+
+### Team-to-Role Mapping
+
+Map GitHub teams to DriftHound roles using these environment variables:
+
+```bash
+GITHUB_TEAM_ADMIN=platform-admins      # Members get admin role
+GITHUB_TEAM_EDITOR=platform-editors    # Members get editor role
+GITHUB_TEAM_VIEWER=platform-viewers    # Members get viewer role (optional)
+```
+
+**Notes:**
+- At least one team mapping must be configured
+- Team slugs are case-insensitive
+- If a user belongs to multiple mapped teams, they receive the highest privilege role
+- Users not in any configured team will be denied access
+
+### Creating a GitHub OAuth App
+
+1. Go to your GitHub organization settings
+2. Navigate to **Developer settings** > **OAuth Apps** > **New OAuth App**
+3. Configure the application:
+   - **Application name**: DriftHound (or your preferred name)
+   - **Homepage URL**: Your DriftHound instance URL (e.g., `https://drifthound.example.com`)
+   - **Authorization callback URL**: `https://drifthound.example.com/auth/github/callback`
+4. After creating, copy the **Client ID** and generate a **Client Secret**
+
+### Required GitHub Permissions
+
+The OAuth app requires access to:
+- User's email address (`user:email` scope)
+- User's organization team memberships (`read:org` scope)
+
+Users will be prompted to authorize these permissions when signing in.
+
+### How OAuth Authentication Works
+
+1. User clicks "Sign in with GitHub" on the login page
+2. User is redirected to GitHub to authorize access
+3. After authorization, GitHub redirects back to DriftHound with an auth code
+4. DriftHound exchanges the code for an access token
+5. DriftHound fetches the user's profile and team memberships
+6. Role is determined based on team mappings (highest privilege wins)
+7. User account is created (if new) or updated with the mapped role
+8. User is logged in and redirected to the dashboard
+
+### Dual Authentication
+
+Users authenticated via OAuth can also set a password for traditional email/password login. This allows flexibility in how users access the system.
+
+### Example Configuration
+
+```bash
+# GitHub OAuth
+GITHUB_OAUTH_ENABLED=true
+GITHUB_CLIENT_ID=Iv1.a1b2c3d4e5f6g7h8
+GITHUB_CLIENT_SECRET=secret123456789abcdef
+GITHUB_ORG=my-company
+GITHUB_TEAM_ADMIN=infrastructure-admins
+GITHUB_TEAM_EDITOR=infrastructure-team
+GITHUB_TEAM_VIEWER=developers
+```
 
 ## Database Configuration
 
@@ -431,6 +509,15 @@ SECRET_KEY_BASE=340b6113695da1baed5d5b7945bff4dc4ab86b75f602c5183624c1b87ffc17d1
 # Admin Authentication (required in production)
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your-secure-admin-password
+
+# GitHub OAuth (optional)
+GITHUB_OAUTH_ENABLED=true
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+GITHUB_ORG=your-organization
+GITHUB_TEAM_ADMIN=platform-admins
+GITHUB_TEAM_EDITOR=platform-editors
+GITHUB_TEAM_VIEWER=platform-viewers
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password

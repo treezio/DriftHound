@@ -1,0 +1,7 @@
+class AddOauthFieldsToUsers < ActiveRecord::Migration[8.1]
+  def change
+    add_column :users, :provider, :string
+    add_column :users, :uid, :string
+    add_index :users, [ :provider, :uid ], unique: true, where: "provider IS NOT NULL"
+  end
+end

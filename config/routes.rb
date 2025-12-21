@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy"
 
+  # OAuth routes
+  get "auth/github", to: "oauth_callbacks#github_redirect", as: :auth_github
+  get "auth/github/callback", to: "oauth_callbacks#github", as: :auth_github_callback
+
   # Registration via invite
   get "register/:token", to: "registrations#new", as: :register
   post "register/:token", to: "registrations#create"

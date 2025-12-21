@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  has_secure_password
+  has_secure_password validations: false
 
   enum :role, { viewer: 0, editor: 1, admin: 2 }
 
@@ -12,11 +12,26 @@ class User < ApplicationRecord
   ].freeze
 
   validates :email, presence: true, uniqueness: true
-  validates :password, length: { minimum: 8 }, allow_nil: true
   validates :role, presence: true
+  validates :password, presence: true, if: :password_required?
+  validates :password, length: { minimum: 8 }, if: -> { password.present? }
   validate :password_complexity, if: -> { password.present? }
   validate :password_not_email, if: -> { password.present? }
   validate :password_not_common, if: -> { password.present? }
+  validates :uid, presence: true, if: :oauth_user?
+  validates :uid, uniqueness: { scope: :provider }, if: :oauth_user?
+
+  def oauth_user?
+    provider.present?
+  end
+
+  def password_required?
+    !oauth_user? && password_digest.blank?
+  end
+
+  def can_use_password?
+    password_digest.present?
+  end
 
   def can_edit?
     editor? || admin?
