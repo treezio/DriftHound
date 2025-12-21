@@ -1,8 +1,27 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-echo "[render-start] Migrating..."
+# Force unbuffered output for logs
+export PYTHONUNBUFFERED=1
+export RUBY_UNBUFFERED=1
+
+echo "[render-entrypoint] Starting DriftHound deployment..."
+echo "[render-entrypoint] Rails environment: $RAILS_ENV"
+echo "[render-entrypoint] Ruby version: $(ruby -v)"
+
+echo "[render-entrypoint] Waiting for database connection..."
+for i in {1..30}; do
+  if bundle exec rails runner "ActiveRecord::Base.connection" 2>/dev/null; then
+    echo "[render-entrypoint] Database connected!"
+    break
+  fi
+  echo "[render-entrypoint] Waiting for database... attempt $i/30"
+  sleep 2
+done
+
+echo "[render-entrypoint] Running database migrations..."
 bundle exec rails db:migrate
+echo "[render-entrypoint] Migrations complete!"
 
-echo "[render-start] Starting puma..."
-bundle exec puma -C config/puma.rb
+echo "[render-entrypoint] Starting Puma web server..."
+exec bundle exec puma -C config/puma.rb
