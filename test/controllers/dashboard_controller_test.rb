@@ -1,6 +1,15 @@
 require "test_helper"
 
 class DashboardControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    # Enable public mode for dashboard tests (these test functionality, not auth)
+    Rails.application.config.public_mode = true
+  end
+
+  teardown do
+    Rails.application.config.public_mode = false
+  end
+
   test "shows dashboard" do
     get root_path
     assert_response :success

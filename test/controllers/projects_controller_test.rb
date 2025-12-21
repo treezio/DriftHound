@@ -3,6 +3,9 @@ require "test_helper"
 
 class ProjectsControllerTest < ActionDispatch::IntegrationTest
   setup do
+    # Enable public mode for these tests (they test functionality, not auth)
+    Rails.application.config.public_mode = true
+
     @project = Project.create!(name: "Test Project", key: "test-project")
     @environment = @project.environments.create!(name: "Production", key: "production", status: :drift)
     @drift_check = @environment.drift_checks.create!(
@@ -14,6 +17,10 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
     )
     @environment.reload
     @project.reload
+  end
+
+  teardown do
+    Rails.application.config.public_mode = false
   end
 
   test "shows project details" do

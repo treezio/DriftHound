@@ -5,6 +5,7 @@ DriftHound can be configured using environment variables for deployment flexibil
 ## Table of Contents
 
 - [Application Settings](#application-settings)
+- [Access Control](#access-control)
 - [Admin Authentication](#admin-authentication)
 - [GitHub OAuth Authentication](#github-oauth-authentication)
 - [Database Configuration](#database-configuration)
@@ -88,6 +89,42 @@ bin/rails secret
 - Use a secrets management system (e.g., sops, AWS Secrets Manager, HashiCorp Vault)
 - Changing this value will invalidate all existing sessions and encrypted data
 - Each environment should use a different secret
+
+## Access Control
+
+### PUBLIC_MODE
+
+Controls whether DriftHound requires authentication for viewing content.
+
+**Required:** No
+**Default:** `false` (private - authentication required)
+**Options:** `true`, `false`
+
+```bash
+# Private mode (default) - requires login to view anything
+PUBLIC_MODE=false
+
+# Public mode - anyone can view dashboard, projects, environments
+PUBLIC_MODE=true
+```
+
+**Behavior:**
+
+| Mode | Dashboard | Projects | Environments | Checks | Admin Actions |
+|------|-----------|----------|--------------|--------|---------------|
+| Private (`false`) | 🔒 Login required | 🔒 Login required | 🔒 Login required | 🔒 Login required | 🔒 Admin only |
+| Public (`true`) | ✅ Public | ✅ Public | ✅ Public | ✅ Public | 🔒 Admin only |
+
+**Notes:**
+- **Private by default** - New deployments require authentication out of the box
+- Admin actions (delete projects/environments, user management, API tokens) always require authentication regardless of this setting
+- Use public mode for internal dashboards where authentication would add friction
+- Use private mode for sensitive infrastructure data or external-facing deployments
+
+**Use cases:**
+
+- **Private mode (recommended)**: Production deployments, sensitive infrastructure data, compliance requirements
+- **Public mode**: Internal team dashboards, demo instances, open-source project monitoring
 
 ## Admin Authentication
 
@@ -521,6 +558,9 @@ RAILS_ENV=production
 APP_URL=https://drifthound.example.com
 RAILS_LOG_LEVEL=info
 SECRET_KEY_BASE=340b6113695da1baed5d5b7945bff4dc4ab86b75f602c5183624c1b87ffc17d192c18572196456bc3242b13ebf74ab75053c9c87ee2202d2718fbfe85e2ff94a
+
+# Access Control (private by default)
+PUBLIC_MODE=false
 
 # Admin Authentication (required in production)
 ADMIN_EMAIL=admin@example.com

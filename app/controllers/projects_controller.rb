@@ -1,5 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project
+  before_action :require_login_unless_public, only: [ :show ]
   before_action :require_login, only: [ :destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 

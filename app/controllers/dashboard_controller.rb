@@ -1,4 +1,6 @@
 class DashboardController < ApplicationController
+  before_action :require_login_unless_public
+
   def index
     @projects = Project.includes(environments: :drift_checks).order(:name)
     @project_environments = []
