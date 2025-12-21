@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0](https://github.com/drifthoundhq/drifthound/compare/v0.3.3...v0.4.0) (2025-12-21)
+
+
+### Features
+
+* API Token Management ([#88](https://github.com/drifthoundhq/drifthound/issues/88)) ([65f4421](https://github.com/drifthoundhq/drifthound/commit/65f44217dea6855fa8e630ef80bc770eece4db29))
+* create render entrypoint ([#90](https://github.com/drifthoundhq/drifthound/issues/90)) ([6a60e8a](https://github.com/drifthoundhq/drifthound/commit/6a60e8a295abaf04874ab3f550407a92160b19be))
+* enable public mode configuration ([#94](https://github.com/drifthoundhq/drifthound/issues/94)) ([52e7bf5](https://github.com/drifthoundhq/drifthound/commit/52e7bf561ba689f619ba1c20ff69ece6b8a3fcdf))
+* GitHub oauth2 integration ([#89](https://github.com/drifthoundhq/drifthound/issues/89)) ([d89e4bd](https://github.com/drifthoundhq/drifthound/commit/d89e4bd69d2143e6d70301eb3e929de308c331be))
+* RBAC and user management ([#86](https://github.com/drifthoundhq/drifthound/issues/86)) ([cf5e7bf](https://github.com/drifthoundhq/drifthound/commit/cf5e7bfd402e480806152e5fbd0c4663a0187f9b))
+
+
+### Bug Fixes
+
+* attempt to fix render entrypoint and improve debug information ([#92](https://github.com/drifthoundhq/drifthound/issues/92)) ([90dcd0c](https://github.com/drifthoundhq/drifthound/commit/90dcd0c960aa4c3595a80e9df47ef1d34da69059))
+* make render-entrypoint executable ([#93](https://github.com/drifthoundhq/drifthound/issues/93)) ([db98fe8](https://github.com/drifthoundhq/drifthound/commit/db98fe850664346f42f46c6f614be108d4d60e58))
+
 ## [0.3.3](https://github.com/treezio/DriftHound/compare/v0.3.2...v0.3.3) (2025-12-15)
 
 
