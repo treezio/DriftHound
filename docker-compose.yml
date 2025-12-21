@@ -28,6 +28,11 @@ services:
       SLACK_DEFAULT_CHANNEL: "#infrastructure-drift"
       ADMIN_EMAIL: "foo@example.com"
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      GITHUB_OAUTH_ENABLED: ${GITHUB_OAUTH_ENABLED}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_ORG: ${GITHUB_ORG}
+      GITHUB_TEAM_ADMIN: ${GITHUB_TEAM_ADMIN}
     depends_on:
       - postgres
     ports:

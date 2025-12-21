@@ -168,18 +168,25 @@ GITHUB_ORG=your-organization-name
 
 ### Team-to-Role Mapping
 
-Map GitHub teams to DriftHound roles using these environment variables:
+Map GitHub teams to DriftHound roles using these environment variables. You can specify multiple teams per role using comma-separated values:
 
 ```bash
-GITHUB_TEAM_ADMIN=platform-admins      # Members get admin role
-GITHUB_TEAM_EDITOR=platform-editors    # Members get editor role
-GITHUB_TEAM_VIEWER=platform-viewers    # Members get viewer role (optional)
+# Single team per role
+GITHUB_TEAM_ADMIN=platform-admins
+GITHUB_TEAM_EDITOR=platform-editors
+GITHUB_TEAM_VIEWER=platform-viewers
+
+# Multiple teams per role (comma-separated)
+GITHUB_TEAM_ADMIN=platform-admins,security-team,devops-leads
+GITHUB_TEAM_EDITOR=developers,contractors
+GITHUB_TEAM_VIEWER=read-only,auditors
 ```
 
 **Notes:**
 - At least one team mapping must be configured
+- Multiple teams can be assigned to the same role using commas (e.g., `team1,team2,team3`)
 - Team slugs are case-insensitive
-- If a user belongs to multiple mapped teams, they receive the highest privilege role
+- If a user belongs to multiple mapped teams with different roles, they receive the highest privilege role
 - Users not in any configured team will be denied access
 
 ### Creating a GitHub OAuth App
@@ -218,7 +225,7 @@ Users authenticated via OAuth can also set a password for traditional email/pass
 ### Example Configuration
 
 ```bash
-# GitHub OAuth
+# GitHub OAuth - Basic (single team per role)
 GITHUB_OAUTH_ENABLED=true
 GITHUB_CLIENT_ID=Iv1.a1b2c3d4e5f6g7h8
 GITHUB_CLIENT_SECRET=secret123456789abcdef
@@ -226,6 +233,15 @@ GITHUB_ORG=my-company
 GITHUB_TEAM_ADMIN=infrastructure-admins
 GITHUB_TEAM_EDITOR=infrastructure-team
 GITHUB_TEAM_VIEWER=developers
+
+# GitHub OAuth - Advanced (multiple teams per role)
+GITHUB_OAUTH_ENABLED=true
+GITHUB_CLIENT_ID=Iv1.a1b2c3d4e5f6g7h8
+GITHUB_CLIENT_SECRET=secret123456789abcdef
+GITHUB_ORG=my-company
+GITHUB_TEAM_ADMIN=infrastructure-admins,security-team
+GITHUB_TEAM_EDITOR=infrastructure-team,platform-engineers,sre
+GITHUB_TEAM_VIEWER=developers,contractors
 ```
 
 ## Database Configuration
@@ -515,9 +531,10 @@ GITHUB_OAUTH_ENABLED=true
 GITHUB_CLIENT_ID=your-github-client-id
 GITHUB_CLIENT_SECRET=your-github-client-secret
 GITHUB_ORG=your-organization
-GITHUB_TEAM_ADMIN=platform-admins
-GITHUB_TEAM_EDITOR=platform-editors
-GITHUB_TEAM_VIEWER=platform-viewers
+# Multiple teams per role supported (comma-separated)
+GITHUB_TEAM_ADMIN=platform-admins,security-team
+GITHUB_TEAM_EDITOR=platform-editors,developers
+GITHUB_TEAM_VIEWER=read-only
 
 # Database
 DRIFTHOUND_DATABASE_PASSWORD=your-secure-db-password

@@ -63,9 +63,11 @@ module Oauth
       user_teams = fetch_user_teams(token, organization)
       matched_roles = []
 
-      team_mappings.each do |role, team_slug|
-        next if team_slug.blank?
-        matched_roles << role if user_teams.include?(team_slug.downcase)
+      team_mappings.each do |role, team_slugs|
+        next if team_slugs.blank?
+        # team_slugs is an array of teams that grant this role
+        team_slugs_downcased = team_slugs.map(&:downcase)
+        matched_roles << role if (user_teams & team_slugs_downcased).any?
       end
 
       if matched_roles.empty?

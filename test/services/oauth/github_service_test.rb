@@ -5,7 +5,7 @@ class Oauth::GithubServiceTest < ActiveSupport::TestCase
     @valid_state = "valid_state_123"
     @code = "auth_code_123"
 
-    # Mock GitHub OAuth config
+    # Mock GitHub OAuth config - team_mappings now use arrays
     Rails.application.config.oauth = {
       github: {
         enabled: true,
@@ -13,9 +13,9 @@ class Oauth::GithubServiceTest < ActiveSupport::TestCase
         client_secret: "test_client_secret",
         organization: "test-org",
         team_mappings: {
-          admin: "platform-admins",
-          editor: "platform-editors",
-          viewer: "platform-viewers"
+          admin: [ "platform-admins", "security-team" ],
+          editor: [ "platform-editors", "developers" ],
+          viewer: [ "platform-viewers" ]
         }
       }
     }
@@ -213,6 +213,36 @@ class Oauth::GithubServiceTest < ActiveSupport::TestCase
     assert user.admin?
   end
 
+  test "grants admin role when user is in secondary admin team" do
+    service = Oauth::GithubService.new(
+      code: @code,
+      state: @valid_state,
+      session_state: @valid_state
+    )
+
+    # security-team is the second team in the admin array
+    stub_github_api(service, uid: "12345", email: "security@example.com", teams: [ "security-team" ])
+
+    user = service.authenticate
+
+    assert user.admin?, "Should have admin role from secondary team in mapping"
+  end
+
+  test "grants editor role when user is in alternative editor team" do
+    service = Oauth::GithubService.new(
+      code: @code,
+      state: @valid_state,
+      session_state: @valid_state
+    )
+
+    # developers is the second team in the editor array
+    stub_github_api(service, uid: "12345", email: "dev@example.com", teams: [ "developers" ])
+
+    user = service.authenticate
+
+    assert user.editor?, "Should have editor role from alternative team in mapping"
+  end
+
   test "authorization_url generates correct URL" do
     url = Oauth::GithubService.authorization_url(
       state: "test_state",
@@ -243,8 +273,9 @@ class Oauth::GithubServiceTest < ActiveSupport::TestCase
       team_mappings = Rails.application.config.oauth[:github][:team_mappings]
       matched_roles = []
       teams.each do |team|
-        team_mappings.each do |r, team_slug|
-          matched_roles << r if team_slug&.downcase == team.downcase
+        team_mappings.each do |r, team_slugs|
+          # team_slugs is now an array
+          matched_roles << r if team_slugs.any? { |slug| slug.downcase == team.downcase }
         end
       end
       calculated_role = matched_roles.max_by { |r| { admin: 2, editor: 1, viewer: 0 }[r] || -1 }

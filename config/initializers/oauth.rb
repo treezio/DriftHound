@@ -2,6 +2,16 @@
 #
 # Configure OAuth providers via environment variables.
 # Currently supports GitHub, with architecture for future providers.
+#
+# Team mappings support multiple teams per role using comma-separated values:
+#   GITHUB_TEAM_ADMIN=platform-admins,security-team
+#   GITHUB_TEAM_EDITOR=developers,contractors
+#   GITHUB_TEAM_VIEWER=read-only,auditors
+
+def parse_team_list(env_value)
+  return [] if env_value.blank?
+  env_value.split(",").map(&:strip).reject(&:blank?)
+end
 
 Rails.application.config.oauth = {
   github: {
@@ -10,10 +20,10 @@ Rails.application.config.oauth = {
     client_secret: ENV["GITHUB_CLIENT_SECRET"],
     organization: ENV["GITHUB_ORG"],
     team_mappings: {
-      admin: ENV["GITHUB_TEAM_ADMIN"],
-      editor: ENV["GITHUB_TEAM_EDITOR"],
-      viewer: ENV["GITHUB_TEAM_VIEWER"]
-    }.compact_blank
+      admin: parse_team_list(ENV["GITHUB_TEAM_ADMIN"]),
+      editor: parse_team_list(ENV["GITHUB_TEAM_EDITOR"]),
+      viewer: parse_team_list(ENV["GITHUB_TEAM_VIEWER"])
+    }.select { |_, teams| teams.any? }
   }
 }
 
