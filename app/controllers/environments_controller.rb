@@ -1,5 +1,6 @@
 class EnvironmentsController < ApplicationController
   before_action :set_project_and_environment
+  before_action :require_login_unless_public, only: [ :show ]
   before_action :require_login, only: [ :destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
