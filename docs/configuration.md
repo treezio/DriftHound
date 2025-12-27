@@ -2,20 +2,6 @@
 
 DriftHound can be configured using environment variables for deployment flexibility. This guide covers all available configuration options.
 
-## Table of Contents
-
-- [Application Settings](#application-settings)
-- [Access Control](#access-control)
-- [Admin Authentication](#admin-authentication)
-- [GitHub OAuth Authentication](#github-oauth-authentication)
-- [Database Configuration](#database-configuration)
-- [Data Retention](#data-retention)
-- [Slack Notifications](#slack-notifications)
-- [Web Server Settings](#web-server-settings)
-- [Logging Configuration](#logging-configuration)
-- [Job Queue Configuration](#job-queue-configuration)
-- [Complete Example](#complete-example)
-
 ## Application Settings
 
 ### APP_URL
